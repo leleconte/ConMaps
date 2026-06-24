@@ -956,7 +956,7 @@
       <div class="sheet-head">
         <div>
           <div class="sheet-title" id="loginTitle">Accedi a ConMaps</div>
-          <div class="sheet-subtitle" id="loginSubtitle">Salva percorsi, preferenze e luoghi preferiti.</div>
+          <div class="sheet-subtitle" id="loginSubtitle">Usa email e password. Dopo la registrazione verifica l'email per sbloccare i percorsi.</div>
         </div>
         <button class="close-btn" data-close="loginSheet">×</button>
       </div>
@@ -969,24 +969,19 @@
         </div>
       </div>
 
-      <div class="provider-grid">
-        <button class="provider-btn" data-provider="Google">Continua con Google</button>
-        <button class="provider-btn" data-provider="Apple">Continua con Apple</button>
-        <button class="provider-btn" data-provider="Microsoft">Microsoft</button>
-        <button class="provider-btn" data-provider="Discord">Discord</button>
-      </div>
-
-      <div class="divider">oppure</div>
-
       <div class="form-stack">
         <input id="emailInput" type="email" placeholder="Email" />
-        <input id="passwordInput" type="password" placeholder="Password" />
-        <button class="primary-btn" id="demoLoginBtn">Accedi / Iscriviti</button>
+        <input id="passwordInput" type="password" placeholder="Password almeno 6 caratteri" />
+        <button class="primary-btn" id="loginEmailBtn">Accedi</button>
+        <button class="provider-btn" id="registerEmailBtn" type="button">Crea account</button>
+        <button class="provider-btn" id="resendVerificationBtn" type="button">Invia di nuovo email di verifica</button>
+        <button class="provider-btn" id="checkVerificationBtn" type="button">Ho verificato l'email</button>
+        <button class="provider-btn" id="resetPasswordBtn" type="button">Password dimenticata</button>
         <button class="provider-btn" id="logoutBtn" type="button">Esci dall'account</button>
       </div>
 
       <div class="mini-note">
-        Accesso reale con Firebase Auth. Google funziona appena abiliti il provider. Apple, Microsoft e Discord richiedono configurazione OAuth/OIDC nella console Firebase.
+        Accesso semplificato: usa solo email e password. Dopo la registrazione ConMaps invia una email ufficiale di verifica. Finché l'email non è verificata, i percorsi restano bloccati.
       </div>
     </div>
   </div>
@@ -1105,8 +1100,8 @@
       CHECK FATTO:
       Prima il vecchio blocco si rompeva se mancava firebase-config.js.
       Qui invece la mappa parte SEMPRE. Firebase viene caricato dopo, in modo sicuro.
-      Per rendere reali Google/Apple/Microsoft/Discord devi compilare firebaseConfig qui sotto
-      oppure creare un file firebase-config.js con: export const firebaseConfig = {...}
+      Login semplificato: solo email/password con verifica email ufficiale Firebase.
+      Compila firebaseConfig qui sotto oppure crea un file firebase-config.js con: export const firebaseConfig = {...}
     */
 
     let initializeApp = null;
@@ -1114,9 +1109,9 @@
     let onAuthStateChanged = null;
     let createUserWithEmailAndPassword = null;
     let signInWithEmailAndPassword = null;
-    let signInWithPopup = null;
-    let GoogleAuthProvider = null;
-    let OAuthProvider = null;
+    let sendEmailVerification = null;
+    let sendPasswordResetEmail = null;
+    let reload = null;
     let signOut = null;
 
     let getFirestore = null;
@@ -1164,9 +1159,9 @@
         onAuthStateChanged = firebaseAuthModule.onAuthStateChanged;
         createUserWithEmailAndPassword = firebaseAuthModule.createUserWithEmailAndPassword;
         signInWithEmailAndPassword = firebaseAuthModule.signInWithEmailAndPassword;
-        signInWithPopup = firebaseAuthModule.signInWithPopup;
-        GoogleAuthProvider = firebaseAuthModule.GoogleAuthProvider;
-        OAuthProvider = firebaseAuthModule.OAuthProvider;
+        sendEmailVerification = firebaseAuthModule.sendEmailVerification;
+        sendPasswordResetEmail = firebaseAuthModule.sendPasswordResetEmail;
+        reload = firebaseAuthModule.reload;
         signOut = firebaseAuthModule.signOut;
 
         getFirestore = firebaseFirestoreModule.getFirestore;
@@ -1239,7 +1234,11 @@
     const themeSelect = document.getElementById("themeSelect");
     const unitSelect = document.getElementById("unitSelect");
     const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-    const demoLoginBtn = document.getElementById("demoLoginBtn");
+    const loginEmailBtn = document.getElementById("loginEmailBtn");
+    const registerEmailBtn = document.getElementById("registerEmailBtn");
+    const resendVerificationBtn = document.getElementById("resendVerificationBtn");
+    const checkVerificationBtn = document.getElementById("checkVerificationBtn");
+    const resetPasswordBtn = document.getElementById("resetPasswordBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const quickPanel = document.getElementById("quickPanel");
     const savedBtn = document.getElementById("savedBtn");
@@ -1307,10 +1306,17 @@
         return false;
       }
 
+      if (!currentUser.emailVerified) {
+        showError("Prima devi verificare la tua email. Controlla la posta oppure premi 'Invia di nuovo email di verifica'.");
+        openSheet(loginSheet);
+        setAppLocked(true, "verify");
+        return false;
+      }
+
       return true;
     }
 
-    function setAppLocked(locked) {
+    function setAppLocked(locked, reason) {
       document.body.classList.toggle("auth-locked", locked);
 
       startInput.disabled = locked;
@@ -1327,8 +1333,20 @@
       if (locked) {
         authLockBanner.classList.add("active");
         navPanel.classList.add("collapsed");
-        currentInstruction.innerText = "Accedi per iniziare la navigazione.";
-        setStatus("Accesso richiesto");
+
+        if (reason === "verify") {
+          document.querySelector(".auth-lock-title").innerText = "Verifica email richiesta";
+          document.querySelector(".auth-lock-text").innerText = "Ti abbiamo mandato una email di verifica. Dopo averla confermata, premi 'Ho verificato l'email' e potrai usare i percorsi.";
+          authLockBtn.innerText = "Verifica account";
+          currentInstruction.innerText = "Verifica la tua email per iniziare la navigazione.";
+          setStatus("Email da verificare");
+        } else {
+          document.querySelector(".auth-lock-title").innerText = "Accesso obbligatorio";
+          document.querySelector(".auth-lock-text").innerText = "Per cercare percorsi, usare la posizione, salvare preferiti e impostazioni devi accedere o creare un account.";
+          authLockBtn.innerText = "Accedi gratis";
+          currentInstruction.innerText = "Accedi per iniziare la navigazione.";
+          setStatus("Accesso richiesto");
+        }
       } else {
         authLockBanner.classList.remove("active");
         setStatus("Account collegato");
@@ -2326,7 +2344,9 @@ function followUserFromBehind(lat, lon, heading) {
 
         accountCard.classList.add("active");
         accountName.innerText = name;
-        accountMail.innerText = user.email || "Provider collegato";
+        accountMail.innerText = user.emailVerified
+          ? (user.email || "Email verificata")
+          : (user.email || "Email non verificata") + " • da verificare";
 
         if (user.photoURL) {
           accountAvatar.innerHTML = `<img src="${user.photoURL}" alt="Avatar" />`;
@@ -2334,8 +2354,14 @@ function followUserFromBehind(lat, lon, heading) {
           accountAvatar.innerText = shortName.charAt(0).toUpperCase();
         }
 
-        setAppLocked(false);
-        setStatus("Account collegato");
+        if (user.emailVerified) {
+          setAppLocked(false);
+          setStatus("Account verificato");
+          closeSheet(loginSheet);
+        } else {
+          setAppLocked(true, "verify");
+          setStatus("Email da verificare");
+        }
       } else {
         demoUser = "";
         localStorage.removeItem("conmaps_user");
@@ -2348,76 +2374,135 @@ function followUserFromBehind(lat, lon, heading) {
       }
     }
 
-    async function signInWithSocial(providerName) {
-      if (!requireFirebase()) return;
-
-      let provider;
-      let label = providerName;
-
-      if (providerName === "Google") {
-        provider = new GoogleAuthProvider();
-      } else if (providerName === "Apple") {
-        provider = new OAuthProvider("apple.com");
-      } else if (providerName === "Microsoft") {
-        provider = new OAuthProvider("microsoft.com");
-      } else if (providerName === "Discord") {
-        provider = new OAuthProvider("oidc.discord");
-        label = "Discord/OIDC";
-      } else {
-        showError("Provider non supportato.");
-        return;
-      }
-
-      try {
-        setStatus("Accesso con " + label + "...");
-        const result = await signInWithPopup(auth, provider);
-        await saveUserAccount(result.user, providerName);
-        closeSheet(loginSheet);
-        setStatus("Accesso effettuato con " + label);
-      } catch (err) {
-        showError("Errore login " + label + ": " + (err.message || err.code));
-        setStatus("Errore login");
-      }
-    }
-
-    async function signInOrCreateEmailAccount() {
-      if (!requireFirebase()) return;
-
+    function getEmailPassword() {
       const email = document.getElementById("emailInput").value.trim();
       const password = document.getElementById("passwordInput").value;
 
       if (!email.includes("@")) {
         showError("Inserisci una email valida.");
-        return;
+        return null;
       }
 
-      if (password.length < 6) {
+      return { email, password };
+    }
+
+    async function registerEmailAccount() {
+      if (!requireFirebase()) return;
+
+      const data = getEmailPassword();
+      if (!data) return;
+
+      if (data.password.length < 6) {
         showError("La password deve avere almeno 6 caratteri.");
         return;
       }
 
       try {
         setStatus("Creazione account...");
-        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
         await saveUserAccount(result.user, "email_signup");
-        closeSheet(loginSheet);
-        setStatus("Account creato");
+        await sendEmailVerification(result.user);
+        updateAuthUI(result.user);
+        showError("Account creato. Ti abbiamo inviato una email di verifica: aprila e conferma il link.");
+        setStatus("Email di verifica inviata");
       } catch (err) {
         if (err.code === "auth/email-already-in-use") {
-          try {
-            setStatus("Accesso account...");
-            const result = await signInWithEmailAndPassword(auth, email, password);
-            await saveUserAccount(result.user, "email_login");
-            closeSheet(loginSheet);
-            setStatus("Accesso effettuato");
-          } catch (loginErr) {
-            showError("Password errata o account non disponibile: " + (loginErr.message || loginErr.code));
-            setStatus("Errore login");
-          }
+          showError("Questa email è già registrata. Premi Accedi oppure usa Password dimenticata.");
         } else {
-          showError("Errore account: " + (err.message || err.code));
-          setStatus("Errore account");
+          showError("Errore registrazione: " + (err.message || err.code));
         }
+        setStatus("Errore registrazione");
+      }
+    }
+
+    async function loginEmailAccount() {
+      if (!requireFirebase()) return;
+
+      const data = getEmailPassword();
+      if (!data) return;
+
+      if (!data.password) {
+        showError("Inserisci la password.");
+        return;
+      }
+
+      try {
+        setStatus("Accesso account...");
+        const result = await signInWithEmailAndPassword(auth, data.email, data.password);
+        await reload(result.user);
+        await saveUserAccount(result.user, "email_login");
+        updateAuthUI(result.user);
+
+        if (result.user.emailVerified) {
+          setStatus("Accesso effettuato");
+        } else {
+          showError("Accesso riuscito, ma devi verificare l'email prima di usare ConMaps.");
+          setStatus("Email da verificare");
+        }
+      } catch (err) {
+        showError("Errore login: " + (err.message || err.code));
+        setStatus("Errore login");
+      }
+    }
+
+    async function resendVerificationEmail() {
+      if (!requireFirebase()) return;
+
+      if (!currentUser) {
+        showError("Prima accedi o crea un account.");
+        return;
+      }
+
+      try {
+        await sendEmailVerification(currentUser);
+        showError("Email di verifica inviata di nuovo. Controlla anche spam/promozioni.");
+        setStatus("Verifica inviata");
+      } catch (err) {
+        showError("Errore invio verifica: " + (err.message || err.code));
+      }
+    }
+
+    async function checkEmailVerification() {
+      if (!requireFirebase()) return;
+
+      if (!currentUser) {
+        showError("Prima accedi o crea un account.");
+        return;
+      }
+
+      try {
+        await reload(currentUser);
+        currentUser = auth.currentUser;
+        await saveUserAccount(currentUser, "email_check_verification");
+        updateAuthUI(currentUser);
+
+        if (currentUser && currentUser.emailVerified) {
+          showError("Email verificata correttamente. Ora puoi usare ConMaps.");
+          setStatus("Account verificato");
+        } else {
+          showError("L'email non risulta ancora verificata. Apri il link ricevuto via email e poi riprova.");
+        }
+      } catch (err) {
+        showError("Errore controllo verifica: " + (err.message || err.code));
+      }
+    }
+
+    async function resetPassword() {
+      if (!requireFirebase()) return;
+
+      const email = document.getElementById("emailInput").value.trim();
+
+      if (!email.includes("@")) {
+        showError("Scrivi la tua email nel campo Email, poi premi Password dimenticata.");
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showError("Email per reimpostare la password inviata.");
+        setStatus("Reset password inviato");
+      } catch (err) {
+        showError("Errore reset password: " + (err.message || err.code));
       }
     }
 
@@ -2585,13 +2670,15 @@ function followUserFromBehind(lat, lon, heading) {
       });
     });
 
-    document.querySelectorAll(".provider-btn[data-provider]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        signInWithSocial(button.dataset.provider);
-      });
-    });
+    loginEmailBtn.addEventListener("click", loginEmailAccount);
 
-    demoLoginBtn.addEventListener("click", signInOrCreateEmailAccount);
+    registerEmailBtn.addEventListener("click", registerEmailAccount);
+
+    resendVerificationBtn.addEventListener("click", resendVerificationEmail);
+
+    checkVerificationBtn.addEventListener("click", checkEmailVerification);
+
+    resetPasswordBtn.addEventListener("click", resetPassword);
 
     logoutBtn.addEventListener("click", logoutAccount);
 
