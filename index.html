@@ -801,6 +801,75 @@
       word-break: break-all;
     }
 
+
+
+    .auth-form-title {
+      font-size: 14px;
+      font-weight: 950;
+      color: #70a7ff;
+      margin: 10px 0 8px;
+    }
+
+    .auth-small-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .auth-small-row button {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .auth-secondary-text {
+      margin: 10px 0 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.58);
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .auth-link-btn {
+      border: none;
+      background: transparent;
+      color: #70a7ff;
+      font-weight: 950;
+      cursor: pointer;
+      padding: 0;
+      font-size: 12px;
+    }
+
+    .auth-panel-hidden {
+      display: none !important;
+    }
+
+    .verification-panel {
+      display: none;
+      margin-top: 14px;
+      padding: 13px;
+      border-radius: 18px;
+      background: rgba(112, 167, 255, 0.11);
+      border: 1px solid rgba(112, 167, 255, 0.26);
+    }
+
+    .verification-panel.active {
+      display: block;
+    }
+
+    .verification-title {
+      font-size: 13px;
+      font-weight: 950;
+      color: white;
+      margin-bottom: 5px;
+    }
+
+    .verification-text {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.62);
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
     @media (max-width: 760px) {
 
       .brand {
@@ -930,7 +999,7 @@
   <div class="auth-lock-banner" id="authLockBanner">
     <div>
       <div class="auth-lock-title">Accesso obbligatorio</div>
-      <div class="auth-lock-text">Per cercare percorsi, usare la posizione, salvare preferiti e impostazioni devi accedere o creare un account.</div>
+      <div class="auth-lock-text">Per cercare percorsi, usare la posizione, salvare preferiti e impostazioni devi accedere con email verificata o creare un account.</div>
     </div>
     <button class="auth-lock-btn" id="authLockBtn">Accedi gratis</button>
   </div>
@@ -969,19 +1038,43 @@
         </div>
       </div>
 
-      <div class="form-stack">
+      <div class="form-stack" id="loginForm">
+        <div class="auth-form-title">Login</div>
         <input id="emailInput" type="email" placeholder="Email" />
-        <input id="passwordInput" type="password" placeholder="Password almeno 6 caratteri" />
+        <input id="passwordInput" type="password" placeholder="Password" />
         <button class="primary-btn" id="loginEmailBtn">Accedi</button>
-        <button class="provider-btn" id="registerEmailBtn" type="button">Crea account</button>
-        <button class="provider-btn" id="resendVerificationBtn" type="button">Invia di nuovo email di verifica</button>
-        <button class="provider-btn" id="checkVerificationBtn" type="button">Ho verificato l'email</button>
-        <button class="provider-btn" id="resetPasswordBtn" type="button">Password dimenticata</button>
-        <button class="provider-btn" id="logoutBtn" type="button">Esci dall'account</button>
+
+        <div class="auth-small-row">
+          <button class="provider-btn" id="showRegisterBtn" type="button">Crea account</button>
+          <button class="provider-btn" id="resetPasswordBtn" type="button">Password dimenticata</button>
+        </div>
       </div>
 
+      <div class="form-stack auth-panel-hidden" id="registerForm">
+        <div class="auth-form-title">Crea account</div>
+        <input id="firstNameInput" type="text" placeholder="Nome" />
+        <input id="lastNameInput" type="text" placeholder="Cognome" />
+        <input id="registerEmailInput" type="email" placeholder="Email" />
+        <input id="registerPasswordInput" type="password" placeholder="Password almeno 6 caratteri" />
+        <button class="primary-btn" id="createAccountBtn" type="button">Crea account e invia verifica</button>
+        <button class="provider-btn" id="backToLoginBtn" type="button">Torna al login</button>
+      </div>
+
+      <div class="verification-panel" id="verificationPanel">
+        <div class="verification-title">Verifica la tua email</div>
+        <div class="verification-text" id="verificationText">
+          Ti abbiamo inviato una email di verifica. Apri il link ricevuto, poi torna qui e premi “Ho verificato l'email”.
+        </div>
+        <div class="auth-small-row">
+          <button class="primary-btn" id="checkVerificationBtn" type="button">Ho verificato l'email</button>
+          <button class="provider-btn" id="resendVerificationBtn" type="button">Invia di nuovo</button>
+        </div>
+      </div>
+
+      <button class="provider-btn" id="logoutBtn" type="button">Esci dall'account</button>
+
       <div class="mini-note">
-        Accesso semplificato: usa solo email e password. Dopo la registrazione ConMaps invia una email ufficiale di verifica. Finché l'email non è verificata, i percorsi restano bloccati.
+        Accesso semplificato: login con email e password. Per creare un account servono nome, cognome, email e password. La verifica email parte automaticamente; ConMaps si sblocca solo dopo la conferma.
       </div>
     </div>
   </div>
@@ -1111,6 +1204,7 @@
     let signInWithEmailAndPassword = null;
     let sendEmailVerification = null;
     let sendPasswordResetEmail = null;
+    let updateProfile = null;
     let reload = null;
     let signOut = null;
 
@@ -1161,6 +1255,7 @@
         signInWithEmailAndPassword = firebaseAuthModule.signInWithEmailAndPassword;
         sendEmailVerification = firebaseAuthModule.sendEmailVerification;
         sendPasswordResetEmail = firebaseAuthModule.sendPasswordResetEmail;
+        updateProfile = firebaseAuthModule.updateProfile;
         reload = firebaseAuthModule.reload;
         signOut = firebaseAuthModule.signOut;
 
@@ -1234,8 +1329,14 @@
     const themeSelect = document.getElementById("themeSelect");
     const unitSelect = document.getElementById("unitSelect");
     const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const verificationPanel = document.getElementById("verificationPanel");
+    const verificationText = document.getElementById("verificationText");
     const loginEmailBtn = document.getElementById("loginEmailBtn");
-    const registerEmailBtn = document.getElementById("registerEmailBtn");
+    const showRegisterBtn = document.getElementById("showRegisterBtn");
+    const createAccountBtn = document.getElementById("createAccountBtn");
+    const backToLoginBtn = document.getElementById("backToLoginBtn");
     const resendVerificationBtn = document.getElementById("resendVerificationBtn");
     const checkVerificationBtn = document.getElementById("checkVerificationBtn");
     const resetPasswordBtn = document.getElementById("resetPasswordBtn");
@@ -1342,7 +1443,7 @@
           setStatus("Email da verificare");
         } else {
           document.querySelector(".auth-lock-title").innerText = "Accesso obbligatorio";
-          document.querySelector(".auth-lock-text").innerText = "Per cercare percorsi, usare la posizione, salvare preferiti e impostazioni devi accedere o creare un account.";
+          document.querySelector(".auth-lock-text").innerText = "Per cercare percorsi, usare la posizione, salvare preferiti e impostazioni devi accedere con email verificata o creare un account.";
           authLockBtn.innerText = "Accedi gratis";
           currentInstruction.innerText = "Accedi per iniziare la navigazione.";
           setStatus("Accesso richiesto");
@@ -2257,7 +2358,7 @@ function followUserFromBehind(lat, lon, heading) {
       };
     }
 
-    async function saveUserAccount(user, loginMethod) {
+    async function saveUserAccount(user, loginMethod, extraData = {}) {
       if (!db || !user) return;
 
       const userRef = doc(db, "users", user.uid);
@@ -2267,6 +2368,7 @@ function followUserFromBehind(lat, lon, heading) {
 
       await setDoc(userRef, {
         ...userData,
+        ...extraData,
         loginMethod: loginMethod || "unknown",
         createdAt: existing.exists() ? existing.data().createdAt : serverTimestamp(),
         settings: {
@@ -2355,10 +2457,12 @@ function followUserFromBehind(lat, lon, heading) {
         }
 
         if (user.emailVerified) {
+          hideVerificationPanel();
           setAppLocked(false);
           setStatus("Account verificato");
           closeSheet(loginSheet);
         } else {
+          showVerificationPanel(user.email);
           setAppLocked(true, "verify");
           setStatus("Email da verificare");
         }
@@ -2374,7 +2478,35 @@ function followUserFromBehind(lat, lon, heading) {
       }
     }
 
-    function getEmailPassword() {
+    function showLoginForm() {
+      loginForm.classList.remove("auth-panel-hidden");
+      registerForm.classList.add("auth-panel-hidden");
+      loginTitle.innerText = "Accedi a ConMaps";
+      loginSubtitle.innerText = "Inserisci email e password. Se l'email non è verificata, ti inviamo automaticamente la verifica.";
+    }
+
+    function showRegisterForm() {
+      registerForm.classList.remove("auth-panel-hidden");
+      loginForm.classList.add("auth-panel-hidden");
+      loginTitle.innerText = "Crea account ConMaps";
+      loginSubtitle.innerText = "Inserisci nome, cognome, email e password. Ti arriverà subito la verifica via email.";
+    }
+
+    function showVerificationPanel(email) {
+      verificationPanel.classList.add("active");
+
+      if (email) {
+        verificationText.innerText = "Abbiamo inviato la verifica a " + email + ". Apri il link ricevuto, poi torna qui e premi “Ho verificato l'email”.";
+      } else {
+        verificationText.innerText = "Ti abbiamo inviato una email di verifica. Apri il link ricevuto, poi torna qui e premi “Ho verificato l'email”.";
+      }
+    }
+
+    function hideVerificationPanel() {
+      verificationPanel.classList.remove("active");
+    }
+
+    function getLoginData() {
       const email = document.getElementById("emailInput").value.trim();
       const password = document.getElementById("passwordInput").value;
 
@@ -2383,33 +2515,84 @@ function followUserFromBehind(lat, lon, heading) {
         return null;
       }
 
+      if (!password) {
+        showError("Inserisci la password.");
+        return null;
+      }
+
       return { email, password };
     }
 
-    async function registerEmailAccount() {
+    function getRegisterData() {
+      const firstName = document.getElementById("firstNameInput").value.trim();
+      const lastName = document.getElementById("lastNameInput").value.trim();
+      const email = document.getElementById("registerEmailInput").value.trim();
+      const password = document.getElementById("registerPasswordInput").value;
+
+      if (firstName.length < 2) {
+        showError("Inserisci il nome.");
+        return null;
+      }
+
+      if (lastName.length < 2) {
+        showError("Inserisci il cognome.");
+        return null;
+      }
+
+      if (!email.includes("@")) {
+        showError("Inserisci una email valida.");
+        return null;
+      }
+
+      if (password.length < 6) {
+        showError("La password deve avere almeno 6 caratteri.");
+        return null;
+      }
+
+      return {
+        firstName,
+        lastName,
+        displayName: firstName + " " + lastName,
+        email,
+        password
+      };
+    }
+
+    async function createEmailAccount() {
       if (!requireFirebase()) return;
 
-      const data = getEmailPassword();
+      const data = getRegisterData();
       if (!data) return;
-
-      if (data.password.length < 6) {
-        showError("La password deve avere almeno 6 caratteri.");
-        return;
-      }
 
       try {
         setStatus("Creazione account...");
         const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
-        await saveUserAccount(result.user, "email_signup");
+
+        if (updateProfile) {
+          await updateProfile(result.user, {
+            displayName: data.displayName
+          });
+        }
+
+        await saveUserAccount(result.user, "email_signup", {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          displayName: data.displayName,
+          emailVerified: false,
+          status: "pending_email_verification"
+        });
+
         await sendEmailVerification(result.user);
         updateAuthUI(result.user);
-        showError("Account creato. Ti abbiamo inviato una email di verifica: aprila e conferma il link.");
-        setStatus("Email di verifica inviata");
+        showLoginForm();
+        showVerificationPanel(data.email);
+        showError("Account creato. Ti abbiamo inviato automaticamente la verifica via email. Verifica l'email prima di usare ConMaps.");
+        setStatus("Verifica email inviata");
       } catch (err) {
         if (err.code === "auth/email-already-in-use") {
-          showError("Questa email è già registrata. Premi Accedi oppure usa Password dimenticata.");
+          showError("Questa email è già registrata. Torna al login e accedi.");
         } else {
-          showError("Errore registrazione: " + (err.message || err.code));
+          showError("Errore creazione account: " + (err.message || err.code));
         }
         setStatus("Errore registrazione");
       }
@@ -2418,27 +2601,41 @@ function followUserFromBehind(lat, lon, heading) {
     async function loginEmailAccount() {
       if (!requireFirebase()) return;
 
-      const data = getEmailPassword();
+      const data = getLoginData();
       if (!data) return;
-
-      if (!data.password) {
-        showError("Inserisci la password.");
-        return;
-      }
 
       try {
         setStatus("Accesso account...");
         const result = await signInWithEmailAndPassword(auth, data.email, data.password);
         await reload(result.user);
-        await saveUserAccount(result.user, "email_login");
-        updateAuthUI(result.user);
 
-        if (result.user.emailVerified) {
-          setStatus("Accesso effettuato");
-        } else {
-          showError("Accesso riuscito, ma devi verificare l'email prima di usare ConMaps.");
+        if (!result.user.emailVerified) {
+          try {
+            await sendEmailVerification(result.user);
+          } catch (verificationError) {
+            console.warn("Verifica non reinviata:", verificationError);
+          }
+
+          await saveUserAccount(result.user, "email_login_not_verified", {
+            emailVerified: false,
+            status: "pending_email_verification"
+          });
+
+          updateAuthUI(result.user);
+          showLoginForm();
+          showVerificationPanel(result.user.email);
+          showError("La tua email non è ancora verificata. Ti abbiamo inviato automaticamente una nuova verifica.");
           setStatus("Email da verificare");
+          return;
         }
+
+        hideVerificationPanel();
+        await saveUserAccount(result.user, "email_login", {
+          emailVerified: true,
+          status: "verified"
+        });
+        updateAuthUI(result.user);
+        setStatus("Accesso effettuato");
       } catch (err) {
         showError("Errore login: " + (err.message || err.code));
         setStatus("Errore login");
@@ -2473,7 +2670,7 @@ function followUserFromBehind(lat, lon, heading) {
       try {
         await reload(currentUser);
         currentUser = auth.currentUser;
-        await saveUserAccount(currentUser, "email_check_verification");
+        await saveUserAccount(currentUser, "email_check_verification", { emailVerified: !!currentUser.emailVerified, status: currentUser.emailVerified ? "verified" : "pending_email_verification" });
         updateAuthUI(currentUser);
 
         if (currentUser && currentUser.emailVerified) {
@@ -2672,7 +2869,11 @@ function followUserFromBehind(lat, lon, heading) {
 
     loginEmailBtn.addEventListener("click", loginEmailAccount);
 
-    registerEmailBtn.addEventListener("click", registerEmailAccount);
+    showRegisterBtn.addEventListener("click", showRegisterForm);
+
+    createAccountBtn.addEventListener("click", createEmailAccount);
+
+    backToLoginBtn.addEventListener("click", showLoginForm);
 
     resendVerificationBtn.addEventListener("click", resendVerificationEmail);
 
@@ -2761,6 +2962,7 @@ function followUserFromBehind(lat, lon, heading) {
 
     window.addEventListener("load", async function () {
       initAppShell();
+      showLoginForm();
 
       navPanel.style.display = "block";
       navPanel.classList.add("collapsed");
