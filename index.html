@@ -717,7 +717,8 @@
 
           if (routeLine) {
             map.setView([lat, lon], 18, {
-              animate: true
+              animate: true,
+              duration: 0.8
             });
 
             updateCurrentInstructionByPosition(lat, lon);
@@ -1315,14 +1316,18 @@
         navPanel.classList.remove("collapsed");
         collapseBtn.innerText = "Riduci";
 
-        if (startPlace.source === "gps") {
-          startWatchingLocation();
-          map.setView([startPlace.lat, startPlace.lon], 18, {
-            animate: true
-          });
-        }
+        map.setView([startPlace.lat, startPlace.lon], 18, {
+          animate: true,
+          duration: 1
+        });
 
-        setStatus("Percorso pronto");
+        if (startPlace.source === "gps") {
+          updateUserMarker(startPlace.lat, startPlace.lon, 0);
+          startWatchingLocation();
+          setStatus("Navigazione attiva");
+        } else {
+          setStatus("Percorso pronto");
+        }
       } catch (err) {
         showError(err.message || "Errore durante il calcolo.");
         setStatus("Errore");
