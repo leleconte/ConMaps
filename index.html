@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>ConMaps</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: #05070a;
+      color: white;
+    }
+
+    #map {
+      width: 100%;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    .top-panel {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(980px, calc(100% - 24px));
+      z-index: 999;
+      background: rgba(10, 12, 18, 0.92);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.55);
+      border-radius: 28px;
+      padding: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 6px 12px;
+      gap: 10px;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span {
+      color: #70a7ff;
+    }
+
+    .status {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.62);
+      text-align: right;
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .field {
+      position: relative;
+    }
+
+    .field input {
+      width: 100%;
+      height: 52px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.075);
+      color: white;
+      outline: none;
+      padding: 0 16px;
+      font-size: 15px;
+      transition: 0.2s ease;
+    }
+
+    .field input:focus {
+      border-color: rgba(112, 167, 255, 0.85);
+      background: rgba(255, 255, 255, 0.11);
+    }
+
+    .field input::placeholder {
+      color: rgba(255, 255, 255, 0.48);
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 58px;
+      left: 0;
+      right: 0;
+      background: rgba(8, 10, 16, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 18px;
+      overflow: hidden;
+      max-height: 280px;
+      overflow-y: auto;
+      display: none;
+      z-index: 2000;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.55);
+    }
+
+    .suggestion {
+      padding: 13px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      transition: 0.15s ease;
+    }
+
+    .suggestion:hover {
+      background: rgba(112, 167, 255, 0.14);
+    }
+
+    .suggestion-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      color: white;
+    }
+
+    .suggestion-sub {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.58);
+      line-height: 1.35;
+    }
+
+    .use-location {
+      color: #70a7ff;
+      font-weight: 900;
+    }
+
+    .go-btn {
+      height: 52px;
+      padding: 0 26px;
+      border: none;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #4e8cff, #7c5cff);
+      color: white;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .go-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(78, 140, 255, 0.35);
+    }
+
+    .mode-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 4px 2px;
+    }
+
+    .mode-btn {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.075);
+      color: rgba(255, 255, 255, 0.8);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #4e8cff, #7c5cff);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 10px 30px rgba(78, 140, 255, 0.22);
+    }
+
+    .nav-panel {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      width: min(390px, calc(100% - 36px));
+      max-height: 42vh;
+      overflow: hidden;
+      background: rgba(10, 12, 18, 0.93);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      z-index: 999;
+      display: none;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-panel.collapsed {
+      max-height: 72px;
+    }
+
+    .nav-header {
+      padding: 14px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .nav-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #70a7ff;
+    }
+
+    .collapse-btn {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.075);
+      color: white;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .nav-content {
+      padding: 14px 15px;
+      overflow: auto;
+      max-height: calc(42vh - 58px);
+    }
+
+    .current-instruction {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .route-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .meta-pill {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .directions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .direction-step {
+      padding: 11px 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.065);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+    }
+
+    .direction-step.active {
+      background: rgba(112, 167, 255, 0.18);
+      border-color: rgba(112, 167, 255, 0.38);
+    }
+
+    .direction-main {
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .direction-meta {
+      margin-top: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .error-box {
+      position: absolute;
+      right: 18px;
+      top: 150px;
+      width: min(430px, calc(100% - 36px));
+      z-index: 3000;
+      background: rgba(255, 68, 68, 0.13);
+      border: 1px solid rgba(255, 110, 110, 0.35);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 20px;
+      padding: 14px;
+      color: #ffd6d6;
+      display: none;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .user-arrow {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4e8cff, #7c5cff);
+      border: 3px solid white;
+      box-shadow: 0 0 0 8px rgba(78, 140, 255, 0.18), 0 12px 35px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center;
+    }
+
+    .user-arrow::before {
+      content: "➤";
+      color: white;
+      font-size: 24px;
+      transform: translateX(1px);
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .leaflet-control-zoom {
+      border: none !important;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    .leaflet-control-zoom a {
+      background: rgba(10, 12, 18, 0.9) !important;
+      color: white !important;
+      border: 1px solid rgba(255, 255, 255, 0.11) !important;
+    }
+
+    @media (max-width: 760px) {
+      .top-panel {
+        top: 10px;
+        border-radius: 22px;
+      }
+
+      .brand {
+        padding-bottom: 10px;
+      }
+
+      .logo {
+        font-size: 20px;
+      }
+
+      .status {
+        display: none;
+      }
+
+      .search-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .go-btn {
+        width: 100%;
+      }
+
+      .mode-btn {
+        flex: 1;
+      }
+
+      .suggestions {
+        max-height: 230px;
+      }
+
+      .nav-panel {
+        right: 12px;
+        left: 12px;
+        bottom: 12px;
+        width: auto;
+        max-height: 34vh;
+        border-radius: 20px;
+      }
+
+      .nav-panel.collapsed {
+        max-height: 66px;
+      }
+
+      .nav-content {
+        max-height: calc(34vh - 58px);
+      }
+
+      .current-instruction {
+        font-size: 16px;
+      }
+
+      .error-box {
+        left: 12px;
+        right: 12px;
+        top: auto;
+        bottom: 12px;
+        width: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <div class="top-panel">
+    <div class="brand">
+      <div class="logo">Con<span>Maps</span></div>
+      <div class="status" id="statusText">Scegli partenza e arrivo</div>
+    </div>
+
+    <div class="search-grid">
+      <div class="field">
+        <input id="startInput" type="text" placeholder="Partenza" autocomplete="off" />
+        <div class="suggestions" id="startSuggestions"></div>
+      </div>
+
+      <div class="field">
+        <input id="endInput" type="text" placeholder="Arrivo" autocomplete="off" />
+        <div class="suggestions" id="endSuggestions"></div>
+      </div>
+
+      <button class="go-btn" id="goBtn">Vai</button>
+    </div>
+
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="drive">🚗 Auto</button>
+      <button class="mode-btn" data-mode="walk">🚶 A piedi</button>
+    </div>
+  </div>
+
+  <div class="nav-panel" id="navPanel">
+    <div class="nav-header">
+      <div class="nav-title">Navigazione</div>
+      <button class="collapse-btn" id="collapseBtn">Riduci</button>
+    </div>
+
+    <div class="nav-content">
+      <div class="current-instruction" id="currentInstruction">Scegli partenza e arrivo</div>
+
+      <div class="route-meta">
+        <div class="meta-pill" id="modeMeta">🚗 Auto</div>
+        <div class="meta-pill" id="distanceMeta">--</div>
+        <div class="meta-pill" id="timeMeta">--</div>
+        <div class="meta-pill" id="gpsMeta">GPS facoltativo</div>
+      </div>
+
+      <div class="directions-list" id="directionsList"></div>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <script>
+    const GEOAPIFY_KEY = "c52bc1e58e1543acaf1233caae7f1bfa";
+
+    const map = L.map("map", {
+      zoomControl: true
+    }).setView([41.9028, 12.4964], 6);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap"
+    }).addTo(map);
+
+    const startInput = document.getElementById("startInput");
+    const endInput = document.getElementById("endInput");
+    const startSuggestions = document.getElementById("startSuggestions");
+    const endSuggestions = document.getElementById("endSuggestions");
+    const goBtn = document.getElementById("goBtn");
+    const statusText = document.getElementById("statusText");
+    const navPanel = document.getElementById("navPanel");
+    const errorBox = document.getElementById("errorBox");
+
+    const currentInstruction = document.getElementById("currentInstruction");
+    const directionsList = document.getElementById("directionsList");
+    const modeMeta = document.getElementById("modeMeta");
+    const distanceMeta = document.getElementById("distanceMeta");
+    const timeMeta = document.getElementById("timeMeta");
+    const gpsMeta = document.getElementById("gpsMeta");
+    const collapseBtn = document.getElementById("collapseBtn");
+
+    let selectedMode = "drive";
+
+    let startPlace = null;
+    let endPlace = null;
+
+    let startMarker = null;
+    let endMarker = null;
+    let userMarker = null;
+    let routeLine = null;
+
+    let watchId = null;
+    let lastPosition = null;
+
+    let currentSteps = [];
+    let currentStepIndex = 0;
+    let routePoints = [];
+
+    function showError(message) {
+      errorBox.innerText = message;
+      errorBox.style.display = "block";
+
+      setTimeout(function () {
+        errorBox.style.display = "none";
+      }, 9000);
+    }
+
+    function setStatus(text) {
+      statusText.innerText = text;
+    }
+
+    function debounce(func, delay) {
+      let timeout;
+
+      return function (...args) {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(function () {
+          func.apply(this, args);
+        }, delay);
+      };
+    }
+
+    function formatTime(seconds) {
+      if (!isFinite(seconds) || seconds <= 0) return "--";
+
+      const minutes = seconds / 60;
+
+      if (minutes < 60) {
+        return Math.round(minutes) + " min";
+      }
+
+      const hours = Math.floor(minutes / 60);
+      const mins = Math.round(minutes % 60);
+
+      if (mins === 0) return hours + " h";
+
+      return hours + " h " + mins + " min";
+    }
+
+    function formatDistance(meters) {
+      if (!isFinite(meters)) return "--";
+
+      if (meters < 1000) {
+        return Math.round(meters) + " m";
+      }
+
+      return (meters / 1000).toFixed(1).replace(".", ",") + " km";
+    }
+
+    function distanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return R * c;
+    }
+
+    function bearingDegrees(lat1, lon1, lat2, lon2) {
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const λ1 = lon1 * Math.PI / 180;
+      const λ2 = lon2 * Math.PI / 180;
+
+      const y = Math.sin(λ2 - λ1) * Math.cos(φ2);
+      const x =
+        Math.cos(φ1) * Math.sin(φ2) -
+        Math.sin(φ1) * Math.cos(φ2) * Math.cos(λ2 - λ1);
+
+      const θ = Math.atan2(y, x);
+
+      return (θ * 180 / Math.PI + 360) % 360;
+    }
+
+    function createUserIcon(rotation) {
+      return L.divIcon({
+        className: "",
+        html: `<div class="user-arrow" style="transform: rotate(${rotation}deg);"></div>`,
+        iconSize: [42, 42],
+        iconAnchor: [21, 21]
+      });
+    }
+
+    function updateUserMarker(lat, lon, heading) {
+      let rotation = 0;
+
+      if (typeof heading === "number" && !isNaN(heading)) {
+        rotation = heading;
+      } else if (lastPosition) {
+        rotation = bearingDegrees(lastPosition.lat, lastPosition.lon, lat, lon);
+      }
+
+      if (!userMarker) {
+        userMarker = L.marker([lat, lon], {
+          icon: createUserIcon(rotation)
+        }).addTo(map);
+      } else {
+        userMarker.setLatLng([lat, lon]);
+        userMarker.setIcon(createUserIcon(rotation));
+      }
+
+      lastPosition = { lat, lon };
+    }
+
+    function getCurrentLocation() {
+      return new Promise(function (resolve, reject) {
+        if (!window.isSecureContext) {
+          reject(new Error("La posizione funziona solo su HTTPS o localhost."));
+          return;
+        }
+
+        if (!navigator.geolocation) {
+          reject(new Error("Il tuo dispositivo non supporta la localizzazione."));
+          return;
+        }
+
+        setStatus("Richiesta localizzazione...");
+        gpsMeta.innerText = "GPS: richiesta";
+
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const heading = position.coords.heading;
+
+            const place = {
+              title: "Posizione attuale",
+              subtitle: "GPS dispositivo",
+              name: "📍 Posizione attuale",
+              lat: lat,
+              lon: lon,
+              source: "gps"
+            };
+
+            updateUserMarker(lat, lon, heading);
+
+            gpsMeta.innerText = "GPS attivo";
+            setStatus("Localizzazione attiva");
+
+            resolve(place);
+          },
+          function (error) {
+            let message = "Localizzazione non disponibile.";
+
+            if (error.code === 1) {
+              message = "Devi consentire la posizione dal browser.";
+            }
+
+            if (error.code === 2) {
+              message = "Il dispositivo non riesce a trovare la posizione.";
+            }
+
+            if (error.code === 3) {
+              message = "La richiesta posizione è scaduta. Riprova.";
+            }
+
+            gpsMeta.innerText = "GPS non attivo";
+            reject(new Error(message));
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          }
+        );
+      });
+    }
+
+    function startWatchingLocation() {
+      if (!startPlace || startPlace.source !== "gps") return;
+
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+
+      watchId = navigator.geolocation.watchPosition(
+        function (position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const heading = position.coords.heading;
+
+          startPlace.lat = lat;
+          startPlace.lon = lon;
+
+          updateUserMarker(lat, lon, heading);
+          gpsMeta.innerText = "GPS attivo";
+
+          if (routeLine) {
+            map.setView([lat, lon], 18, {
+              animate: true
+            });
+
+            updateCurrentInstructionByPosition(lat, lon);
+          }
+        },
+        function () {
+          gpsMeta.innerText = "GPS perso";
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    async function searchPlacesGeoapify(query) {
+      const url =
+        "https://api.geoapify.com/v1/geocode/autocomplete?" +
+        new URLSearchParams({
+          text: query.trim(),
+          limit: "8",
+          lang: "it",
+          apiKey: GEOAPIFY_KEY
+        }).toString();
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Errore suggerimenti. Controlla la API key Geoapify.");
+      }
+
+      const data = await response.json();
+
+      return (data.features || []).map(function (feature) {
+        const p = feature.properties || {};
+        const coords = feature.geometry.coordinates;
+
+        return {
+          title: p.name || p.street || p.city || p.formatted || "Luogo",
+          subtitle:
+            p.formatted ||
+            [p.street, p.city, p.county, p.state, p.country].filter(Boolean).join(", "),
+          name:
+            p.formatted ||
+            [p.name, p.street, p.city, p.country].filter(Boolean).join(", "),
+          lat: coords[1],
+          lon: coords[0],
+          source: "geoapify"
+        };
+      });
+    }
+
+    async function searchPlacesPhoton(query) {
+      const url =
+        "https://photon.komoot.io/api/?" +
+        new URLSearchParams({
+          q: query.trim(),
+          limit: "8",
+          lang: "it"
+        }).toString();
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Photon non risponde.");
+      }
+
+      const data = await response.json();
+
+      return (data.features || []).map(function (feature) {
+        const p = feature.properties || {};
+        const coords = feature.geometry.coordinates;
+
+        const title = p.name || p.street || p.city || p.county || p.state || p.country || "Luogo";
+
+        const details = [
+          p.housenumber && p.street ? p.street + " " + p.housenumber : null,
+          !p.housenumber ? p.street : null,
+          p.city,
+          p.county,
+          p.state,
+          p.country
+        ].filter(Boolean);
+
+        const uniqueDetails = [...new Set(details)];
+
+        return {
+          title: title,
+          subtitle: uniqueDetails.join(", "),
+          name: [title, uniqueDetails.join(", ")].filter(Boolean).join(" — "),
+          lat: coords[1],
+          lon: coords[0],
+          source: "photon"
+        };
+      });
+    }
+
+    async function searchPlaces(query) {
+      if (!query || query.trim().length < 2) {
+        return [];
+      }
+
+      try {
+        return await searchPlacesGeoapify(query);
+      } catch (err) {
+        return await searchPlacesPhoton(query);
+      }
+    }
+
+    function renderSuggestions(results, box, input, type) {
+      box.innerHTML = "";
+
+      if (type === "start") {
+        const locationItem = document.createElement("div");
+        locationItem.className = "suggestion";
+
+        locationItem.innerHTML = `
+          <div class="suggestion-title use-location">📍 Usa posizione attuale</div>
+          <div class="suggestion-sub">Il browser ti chiederà il permesso GPS</div>
+        `;
+
+        locationItem.addEventListener("mousedown", async function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          try {
+            const place = await getCurrentLocation();
+            selectPlace(place, input, box, "start");
+          } catch (err) {
+            showError(err.message);
+          }
+        });
+
+        locationItem.addEventListener("touchstart", async function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          try {
+            const place = await getCurrentLocation();
+            selectPlace(place, input, box, "start");
+          } catch (err) {
+            showError(err.message);
+          }
+        });
+
+        box.appendChild(locationItem);
+      }
+
+      if (!results.length) {
+        const emptyItem = document.createElement("div");
+        emptyItem.className = "suggestion";
+
+        emptyItem.innerHTML = `
+          <div class="suggestion-title">Nessun suggerimento</div>
+          <div class="suggestion-sub">Scrivi meglio, esempio: Napoli oppure Via Roma Napoli</div>
+        `;
+
+        box.appendChild(emptyItem);
+        box.style.display = "block";
+        return;
+      }
+
+      results.forEach(function (place) {
+        const item = document.createElement("div");
+        item.className = "suggestion";
+
+        item.innerHTML = `
+          <div class="suggestion-title">${place.title}</div>
+          <div class="suggestion-sub">${place.subtitle || place.name}</div>
+        `;
+
+        item.addEventListener("mousedown", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          selectPlace(place, input, box, type);
+        });
+
+        item.addEventListener("touchstart", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          selectPlace(place, input, box, type);
+        });
+
+        box.appendChild(item);
+      });
+
+      box.style.display = "block";
+    }
+
+    function selectPlace(place, input, box, type) {
+      if (type === "start") {
+        startPlace = place;
+        input.value = place.name;
+        setMarker("start", place);
+        endInput.focus();
+      } else {
+        endPlace = place;
+        input.value = place.name;
+        setMarker("end", place);
+      }
+
+      box.style.display = "none";
+    }
+
+    function setMarker(type, place) {
+      if (type === "start") {
+        if (startMarker) {
+          map.removeLayer(startMarker);
+        }
+
+        if (place.source !== "gps") {
+          startMarker = L.marker([place.lat, place.lon]).addTo(map).bindPopup("Partenza<br>" + place.name);
+        }
+      } else {
+        if (endMarker) {
+          map.removeLayer(endMarker);
+        }
+
+        endMarker = L.marker([place.lat, place.lon]).addTo(map).bindPopup("Arrivo<br>" + place.name);
+      }
+
+      const points = [];
+
+      if (startPlace) points.push([startPlace.lat, startPlace.lon]);
+      if (endPlace) points.push([endPlace.lat, endPlace.lon]);
+
+      if (points.length === 1) {
+        map.setView(points[0], 14);
+      }
+
+      if (points.length === 2) {
+        map.fitBounds(points, {
+          padding: [90, 90]
+        });
+      }
+    }
+
+    const handleStartSearch = debounce(async function () {
+      const query = startInput.value.trim();
+
+      if (query.length < 2) {
+        renderSuggestions([], startSuggestions, startInput, "start");
+        return;
+      }
+
+      startSuggestions.innerHTML = `
+        <div class="suggestion">
+          <div class="suggestion-title">Cerco...</div>
+          <div class="suggestion-sub">Ricerca nel database mondiale</div>
+        </div>
+      `;
+
+      startSuggestions.style.display = "block";
+
+      try {
+        const results = await searchPlaces(query);
+        renderSuggestions(results, startSuggestions, startInput, "start");
+      } catch (err) {
+        showError("Errore durante la ricerca della partenza.");
+        renderSuggestions([], startSuggestions, startInput, "start");
+      }
+    }, 350);
+
+    const handleEndSearch = debounce(async function () {
+      const query = endInput.value.trim();
+
+      if (query.length < 2) {
+        endSuggestions.style.display = "none";
+        return;
+      }
+
+      endSuggestions.innerHTML = `
+        <div class="suggestion">
+          <div class="suggestion-title">Cerco...</div>
+          <div class="suggestion-sub">Ricerca nel database mondiale</div>
+        </div>
+      `;
+
+      endSuggestions.style.display = "block";
+
+      try {
+        const results = await searchPlaces(query);
+        renderSuggestions(results, endSuggestions, endInput, "end");
+      } catch (err) {
+        showError("Errore durante la ricerca dell’arrivo.");
+        renderSuggestions([], endSuggestions, endInput, "end");
+      }
+    }, 350);
+
+    startInput.addEventListener("input", function () {
+      startPlace = null;
+      handleStartSearch();
+    });
+
+    endInput.addEventListener("input", function () {
+      endPlace = null;
+      handleEndSearch();
+    });
+
+    startInput.addEventListener("focus", function () {
+      if (startInput.value.trim().length >= 2) {
+        handleStartSearch();
+      } else {
+        renderSuggestions([], startSuggestions, startInput, "start");
+      }
+    });
+
+    endInput.addEventListener("focus", function () {
+      if (endInput.value.trim().length >= 2) {
+        handleEndSearch();
+      }
+    });
+
+    document.addEventListener("mousedown", function (event) {
+      if (!startInput.contains(event.target) && !startSuggestions.contains(event.target)) {
+        startSuggestions.style.display = "none";
+      }
+
+      if (!endInput.contains(event.target) && !endSuggestions.contains(event.target)) {
+        endSuggestions.style.display = "none";
+      }
+    });
+
+    document.addEventListener("touchstart", function (event) {
+      if (!startInput.contains(event.target) && !startSuggestions.contains(event.target)) {
+        startSuggestions.style.display = "none";
+      }
+
+      if (!endInput.contains(event.target) && !endSuggestions.contains(event.target)) {
+        endSuggestions.style.display = "none";
+      }
+    });
+
+    async function geocodeManualInput(input, type) {
+      const text = input.value.trim();
+
+      if (text.length < 2) {
+        throw new Error(type === "start" ? "Inserisci una partenza." : "Inserisci un arrivo.");
+      }
+
+      const results = await searchPlaces(text);
+
+      if (!results.length) {
+        throw new Error(type === "start" ? "Non ho trovato la partenza." : "Non ho trovato l’arrivo.");
+      }
+
+      return results[0];
+    }
+
+    async function ensurePlacesSelected() {
+      if (!startPlace) {
+        const foundStart = await geocodeManualInput(startInput, "start");
+        startPlace = foundStart;
+        startInput.value = foundStart.name;
+        setMarker("start", foundStart);
+      }
+
+      if (!endPlace) {
+        const foundEnd = await geocodeManualInput(endInput, "end");
+        endPlace = foundEnd;
+        endInput.value = foundEnd.name;
+        setMarker("end", foundEnd);
+      }
+    }
+
+    async function calculateRouteFromGeoapify() {
+      const waypoints =
+        startPlace.lat + "," + startPlace.lon + "|" +
+        endPlace.lat + "," + endPlace.lon;
+
+      const url =
+        "https://api.geoapify.com/v1/routing?" +
+        new URLSearchParams({
+          waypoints: waypoints,
+          mode: selectedMode,
+          lang: "it",
+          details: "instruction_details",
+          apiKey: GEOAPIFY_KEY
+        }).toString();
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Errore nel calcolo del percorso.");
+      }
+
+      const data = await response.json();
+
+      if (!data.features || !data.features.length) {
+        throw new Error("Percorso non trovato.");
+      }
+
+      return data.features[0];
+    }
+
+    function flattenCoordinates(geometry) {
+      if (!geometry || !geometry.coordinates) return [];
+
+      if (geometry.type === "LineString") {
+        return geometry.coordinates.map(function (coord) {
+          return [coord[1], coord[0]];
+        });
+      }
+
+      if (geometry.type === "MultiLineString") {
+        const points = [];
+
+        geometry.coordinates.forEach(function (line) {
+          line.forEach(function (coord) {
+            points.push([coord[1], coord[0]]);
+          });
+        });
+
+        return points;
+      }
+
+      return [];
+    }
+
+    function drawRoute(routeFeature) {
+      if (routeLine) {
+        map.removeLayer(routeLine);
+      }
+
+      routePoints = flattenCoordinates(routeFeature.geometry);
+
+      if (!routePoints.length) {
+        throw new Error("Geometria percorso non valida.");
+      }
+
+      routeLine = L.polyline(routePoints, {
+        color: selectedMode === "drive" ? "#4e8cff" : "#54e38e",
+        weight: 7,
+        opacity: 0.95
+      }).addTo(map);
+
+      map.fitBounds(routeLine.getBounds(), {
+        padding: [100, 100]
+      });
+    }
+
+    function extractDirections(routeFeature) {
+      const props = routeFeature.properties || {};
+      const legs = props.legs || [];
+      const steps = [];
+
+      legs.forEach(function (leg) {
+        const legSteps = leg.steps || [];
+
+        legSteps.forEach(function (step) {
+          let text = "Prosegui";
+
+          if (step.instruction && typeof step.instruction === "object") {
+            text =
+              step.instruction.text ||
+              step.instruction.description ||
+              step.instruction.type ||
+              "Prosegui";
+          } else if (typeof step.instruction === "string") {
+            text = step.instruction;
+          } else if (step.name) {
+            text = "Prosegui su " + step.name;
+          }
+
+          steps.push({
+            text: text,
+            distance: step.distance || 0,
+            time: step.time || 0
+          });
+        });
+      });
+
+      if (!steps.length) {
+        steps.push({
+          text: "Segui il percorso evidenziato sulla mappa fino alla destinazione.",
+          distance: props.distance || 0,
+          time: props.time || 0
+        });
+      }
+
+      return steps;
+    }
+
+    function renderDirections() {
+      directionsList.innerHTML = "";
+
+      currentSteps.forEach(function (step, index) {
+        const item = document.createElement("div");
+        item.className = "direction-step";
+        item.dataset.index = index;
+
+        item.innerHTML = `
+          <div class="direction-main">${index + 1}. ${step.text}</div>
+          <div class="direction-meta">${formatDistance(step.distance)} • ${formatTime(step.time)}</div>
+        `;
+
+        item.addEventListener("click", function () {
+          currentStepIndex = index;
+          updateInstructionUI();
+        });
+
+        directionsList.appendChild(item);
+      });
+    }
+
+    function updateInstructionUI() {
+      if (!currentSteps.length) return;
+
+      const step = currentSteps[currentStepIndex];
+
+      currentInstruction.innerText = step.text;
+
+      document.querySelectorAll(".direction-step").forEach(function (item) {
+        item.classList.remove("active");
+      });
+
+      const active = document.querySelector(`.direction-step[data-index="${currentStepIndex}"]`);
+
+      if (active) {
+        active.classList.add("active");
+      }
+    }
+
+    function updateCurrentInstructionByPosition(lat, lon) {
+      if (!currentSteps.length || !endPlace) return;
+
+      const destinationDistance = distanceMeters(lat, lon, endPlace.lat, endPlace.lon);
+
+      if (destinationDistance < 25) {
+        currentInstruction.innerText = "Sei arrivato a destinazione";
+        gpsMeta.innerText = "Arrivato";
+        return;
+      }
+
+      const progressRatio = getRouteProgressRatio(lat, lon);
+
+      const estimatedStep = Math.min(
+        currentSteps.length - 1,
+        Math.floor(progressRatio * currentSteps.length)
+      );
+
+      if (estimatedStep !== currentStepIndex) {
+        currentStepIndex = estimatedStep;
+        updateInstructionUI();
+      }
+    }
+
+    function getRouteProgressRatio(lat, lon) {
+      if (!routePoints.length) return 0;
+
+      let nearestIndex = 0;
+      let nearestDistance = Infinity;
+
+      routePoints.forEach(function (point, index) {
+        const d = distanceMeters(lat, lon, point[0], point[1]);
+
+        if (d < nearestDistance) {
+          nearestDistance = d;
+          nearestIndex = index;
+        }
+      });
+
+      return nearestIndex / Math.max(1, routePoints.length - 1);
+    }
+
+    async function calculateRoute() {
+      try {
+        goBtn.classList.add("loading");
+        goBtn.innerText = "Calcolo...";
+        setStatus("Calcolo percorso...");
+
+        await ensurePlacesSelected();
+
+        const routeFeature = await calculateRouteFromGeoapify();
+
+        drawRoute(routeFeature);
+
+        const props = routeFeature.properties || {};
+        const distance = props.distance || 0;
+        const time = props.time || 0;
+
+        currentSteps = extractDirections(routeFeature);
+        currentStepIndex = 0;
+
+        modeMeta.innerText = selectedMode === "drive" ? "🚗 Auto" : "🚶 A piedi";
+        distanceMeta.innerText = formatDistance(distance);
+        timeMeta.innerText = formatTime(time);
+        gpsMeta.innerText = startPlace.source === "gps" ? "GPS attivo" : "Partenza scelta";
+
+        renderDirections();
+        updateInstructionUI();
+
+        navPanel.style.display = "block";
+        navPanel.classList.remove("collapsed");
+        collapseBtn.innerText = "Riduci";
+
+        if (startPlace.source === "gps") {
+          startWatchingLocation();
+          map.setView([startPlace.lat, startPlace.lon], 18, {
+            animate: true
+          });
+        }
+
+        setStatus("Percorso pronto");
+      } catch (err) {
+        showError(err.message || "Errore durante il calcolo.");
+        setStatus("Errore");
+      } finally {
+        goBtn.classList.remove("loading");
+        goBtn.innerText = "Vai";
+      }
+    }
+
+    document.querySelectorAll(".mode-btn").forEach(function (button) {
+      button.addEventListener("click", function () {
+        document.querySelectorAll(".mode-btn").forEach(function (btn) {
+          btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+        selectedMode = button.dataset.mode;
+
+        setStatus(selectedMode === "drive" ? "Modalità auto" : "Modalità a piedi");
+
+        if (startPlace && endPlace) {
+          calculateRoute();
+        }
+      });
+    });
+
+    collapseBtn.addEventListener("click", function () {
+      navPanel.classList.toggle("collapsed");
+
+      if (navPanel.classList.contains("collapsed")) {
+        collapseBtn.innerText = "Apri";
+      } else {
+        collapseBtn.innerText = "Riduci";
+      }
+    });
+
+    goBtn.addEventListener("click", calculateRoute);
+
+    startInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        endInput.focus();
+      }
+    });
+
+    endInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        calculateRoute();
+      }
+    });
+
+    window.addEventListener("load", function () {
+      navPanel.style.display = "block";
+      navPanel.classList.add("collapsed");
+      currentInstruction.innerText = "Scegli partenza e arrivo.";
+    });
+  </script>
+</body>
+</html>
