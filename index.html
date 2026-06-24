@@ -305,7 +305,7 @@
       right: 18px;
       top: 150px;
       width: min(430px, calc(100% - 36px));
-      z-index: 3000;
+      z-index: 8000;
       background: rgba(255, 68, 68, 0.13);
       border: 1px solid rgba(255, 110, 110, 0.35);
       backdrop-filter: blur(18px);
@@ -871,6 +871,103 @@
       margin-bottom: 10px;
     }
 
+
+
+    .auth-message {
+      display: none;
+      margin-bottom: 12px;
+      padding: 12px 13px;
+      border-radius: 16px;
+      border: 1px solid rgba(112, 167, 255, 0.28);
+      background: rgba(112, 167, 255, 0.12);
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .auth-message.active {
+      display: block;
+    }
+
+    .auth-message.error {
+      border-color: rgba(255, 110, 110, 0.35);
+      background: rgba(255, 68, 68, 0.13);
+      color: #ffd6d6;
+    }
+
+    .auth-message.success {
+      border-color: rgba(84, 227, 142, 0.35);
+      background: rgba(84, 227, 142, 0.12);
+      color: #d8ffe7;
+    }
+
+    .auth-form-title {
+      font-size: 15px;
+      font-weight: 950;
+      color: #70a7ff;
+      margin: 2px 0 2px;
+    }
+
+    .auth-small-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .auth-panel-hidden {
+      display: none !important;
+    }
+
+    .verification-panel {
+      display: none;
+      margin-top: 12px;
+      padding: 13px;
+      border-radius: 18px;
+      border: 1px solid rgba(112, 167, 255, 0.25);
+      background: rgba(112, 167, 255, 0.1);
+    }
+
+    .verification-panel.active {
+      display: block;
+    }
+
+    .verification-title {
+      font-size: 14px;
+      font-weight: 950;
+      color: #70a7ff;
+      margin-bottom: 6px;
+    }
+
+    .verification-text {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    #logoutBtn {
+      display: none;
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    #logoutBtn.active {
+      display: block;
+    }
+
+    .login-help-text {
+      margin-top: -2px;
+      color: rgba(255, 255, 255, 0.50);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .sheet .primary-btn,
+    .sheet .provider-btn {
+      width: 100%;
+    }
+
     @media (max-width: 760px) {
 
       .brand {
@@ -918,6 +1015,10 @@
         width: auto;
       }
 
+
+      .auth-small-row {
+        grid-template-columns: 1fr;
+      }
 
       .auth-lock-banner {
         bottom: 12px;
@@ -1026,10 +1127,12 @@
       <div class="sheet-head">
         <div>
           <div class="sheet-title" id="loginTitle">Accedi a ConMaps</div>
-          <div class="sheet-subtitle" id="loginSubtitle">Usa email e password. Dopo la registrazione verifica l'email per sbloccare i percorsi.</div>
+          <div class="sheet-subtitle" id="loginSubtitle">Usa solo email e password. L'accesso si sblocca dopo la verifica email.</div>
         </div>
         <button class="close-btn" data-close="loginSheet">×</button>
       </div>
+
+      <div class="auth-message" id="authMessage"></div>
 
       <div class="account-card" id="accountCard">
         <div class="account-avatar" id="accountAvatar">C</div>
@@ -1043,7 +1146,8 @@
         <div class="auth-form-title">Login</div>
         <input id="emailInput" type="email" placeholder="Email" />
         <input id="passwordInput" type="password" placeholder="Password" />
-        <button class="primary-btn" id="loginEmailBtn">Accedi</button>
+        <button class="primary-btn" id="loginEmailBtn" type="button">Accedi</button>
+        <div class="login-help-text">Se l’email non è verificata, ConMaps ti invia automaticamente una nuova verifica.</div>
 
         <div class="auth-small-row">
           <button class="provider-btn" id="showRegisterBtn" type="button">Crea account</button>
@@ -1330,10 +1434,17 @@
     const themeSelect = document.getElementById("themeSelect");
     const unitSelect = document.getElementById("unitSelect");
     const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+    const authMessage = document.getElementById("authMessage");
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
     const verificationPanel = document.getElementById("verificationPanel");
     const verificationText = document.getElementById("verificationText");
+    const emailInput = document.getElementById("emailInput");
+    const passwordInput = document.getElementById("passwordInput");
+    const firstNameInput = document.getElementById("firstNameInput");
+    const lastNameInput = document.getElementById("lastNameInput");
+    const registerEmailInput = document.getElementById("registerEmailInput");
+    const registerPasswordInput = document.getElementById("registerPasswordInput");
     const loginEmailBtn = document.getElementById("loginEmailBtn");
     const showRegisterBtn = document.getElementById("showRegisterBtn");
     const createAccountBtn = document.getElementById("createAccountBtn");
@@ -1376,9 +1487,27 @@
     let demoUser = localStorage.getItem("conmaps_user") || "";
     let lastRouteSavedAt = 0;
 
+    function showAuthMessage(message, type) {
+      if (!authMessage) return;
+
+      authMessage.innerText = message;
+      authMessage.className = "auth-message active" + (type ? " " + type : "");
+    }
+
+    function clearAuthMessage() {
+      if (!authMessage) return;
+
+      authMessage.innerText = "";
+      authMessage.className = "auth-message";
+    }
+
     function showError(message) {
       errorBox.innerText = message;
       errorBox.style.display = "block";
+
+      if (loginSheet && loginSheet.classList.contains("active")) {
+        showAuthMessage(message, "error");
+      }
 
       setTimeout(function () {
         errorBox.style.display = "none";
@@ -2336,7 +2465,9 @@ function followUserFromBehind(lat, lon, heading) {
 
     function requireFirebase() {
       if (!FIREBASE_READY || !auth || !db) {
-        showError("Firebase non è configurato. Apri firebase-config.js e inserisci i dati del tuo progetto Firebase.");
+        const message = "Firebase non è configurato: il login non può funzionare finché non compili firebase-config.js e abiliti Email/Password in Firebase Authentication.";
+        showError(message);
+        showAuthMessage(message, "error");
         return false;
       }
 
@@ -2446,6 +2577,7 @@ function followUserFromBehind(lat, lon, heading) {
         localStorage.setItem("conmaps_user", demoUser);
 
         accountCard.classList.add("active");
+        logoutBtn.classList.add("active");
         accountName.innerText = name;
         accountMail.innerText = user.emailVerified
           ? (user.email || "Email verificata")
@@ -2471,6 +2603,7 @@ function followUserFromBehind(lat, lon, heading) {
         demoUser = "";
         localStorage.removeItem("conmaps_user");
         accountCard.classList.remove("active");
+        logoutBtn.classList.remove("active");
         accountAvatar.innerText = "C";
         accountName.innerText = "Account";
         accountMail.innerText = "Non collegato";
@@ -2483,14 +2616,17 @@ function followUserFromBehind(lat, lon, heading) {
       loginForm.classList.remove("auth-panel-hidden");
       registerForm.classList.add("auth-panel-hidden");
       loginTitle.innerText = "Accedi a ConMaps";
-      loginSubtitle.innerText = "Inserisci email e password. Se l'email non è verificata, ti inviamo automaticamente la verifica.";
+      loginSubtitle.innerText = "Email e password. Se l'email non è verificata, ti inviamo automaticamente la verifica.";
+      clearAuthMessage();
     }
 
     function showRegisterForm() {
       registerForm.classList.remove("auth-panel-hidden");
       loginForm.classList.add("auth-panel-hidden");
       loginTitle.innerText = "Crea account ConMaps";
-      loginSubtitle.innerText = "Inserisci nome, cognome, email e password. Ti arriverà subito la verifica via email.";
+      loginSubtitle.innerText = "Nome, cognome, email e password. Subito dopo riceverai la verifica via email.";
+      clearAuthMessage();
+      hideVerificationPanel();
     }
 
     function showVerificationPanel(email) {
@@ -2508,8 +2644,8 @@ function followUserFromBehind(lat, lon, heading) {
     }
 
     function getLoginData() {
-      const email = document.getElementById("emailInput").value.trim();
-      const password = document.getElementById("passwordInput").value;
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
 
       if (!email.includes("@")) {
         showError("Inserisci una email valida.");
@@ -2525,10 +2661,10 @@ function followUserFromBehind(lat, lon, heading) {
     }
 
     function getRegisterData() {
-      const firstName = document.getElementById("firstNameInput").value.trim();
-      const lastName = document.getElementById("lastNameInput").value.trim();
-      const email = document.getElementById("registerEmailInput").value.trim();
-      const password = document.getElementById("registerPasswordInput").value;
+      const firstName = firstNameInput.value.trim();
+      const lastName = lastNameInput.value.trim();
+      const email = registerEmailInput.value.trim();
+      const password = registerPasswordInput.value;
 
       if (firstName.length < 2) {
         showError("Inserisci il nome.");
@@ -2559,6 +2695,14 @@ function followUserFromBehind(lat, lon, heading) {
       };
     }
 
+    function setAuthButtonsLoading(isLoading) {
+      loginEmailBtn.disabled = isLoading;
+      createAccountBtn.disabled = isLoading;
+      resendVerificationBtn.disabled = isLoading;
+      checkVerificationBtn.disabled = isLoading;
+      resetPasswordBtn.disabled = isLoading;
+    }
+
     async function createEmailAccount() {
       if (!requireFirebase()) return;
 
@@ -2566,6 +2710,8 @@ function followUserFromBehind(lat, lon, heading) {
       if (!data) return;
 
       try {
+        setAuthButtonsLoading(true);
+        clearAuthMessage();
         setStatus("Creazione account...");
         const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
 
@@ -2587,7 +2733,7 @@ function followUserFromBehind(lat, lon, heading) {
         updateAuthUI(result.user);
         showLoginForm();
         showVerificationPanel(data.email);
-        showError("Account creato. Ti abbiamo inviato automaticamente la verifica via email. Verifica l'email prima di usare ConMaps.");
+        showAuthMessage("Account creato. Ti abbiamo inviato automaticamente la verifica via email. Verifica l'email, poi premi Ho verificato l'email.", "success");
         setStatus("Verifica email inviata");
       } catch (err) {
         if (err.code === "auth/email-already-in-use") {
@@ -2596,6 +2742,8 @@ function followUserFromBehind(lat, lon, heading) {
           showError("Errore creazione account: " + (err.message || err.code));
         }
         setStatus("Errore registrazione");
+      } finally {
+        setAuthButtonsLoading(false);
       }
     }
 
@@ -2606,6 +2754,8 @@ function followUserFromBehind(lat, lon, heading) {
       if (!data) return;
 
       try {
+        setAuthButtonsLoading(true);
+        clearAuthMessage();
         setStatus("Accesso account...");
         const result = await signInWithEmailAndPassword(auth, data.email, data.password);
         await reload(result.user);
@@ -2625,7 +2775,7 @@ function followUserFromBehind(lat, lon, heading) {
           updateAuthUI(result.user);
           showLoginForm();
           showVerificationPanel(result.user.email);
-          showError("La tua email non è ancora verificata. Ti abbiamo inviato automaticamente una nuova verifica.");
+          showAuthMessage("La tua email non è ancora verificata. Ti abbiamo inviato automaticamente una nuova verifica.", "error");
           setStatus("Email da verificare");
           return;
         }
@@ -2636,10 +2786,13 @@ function followUserFromBehind(lat, lon, heading) {
           status: "verified"
         });
         updateAuthUI(result.user);
+        showAuthMessage("Accesso effettuato. Email verificata correttamente.", "success");
         setStatus("Accesso effettuato");
       } catch (err) {
         showError("Errore login: " + (err.message || err.code));
         setStatus("Errore login");
+      } finally {
+        setAuthButtonsLoading(false);
       }
     }
 
@@ -2866,6 +3019,19 @@ function followUserFromBehind(lat, lon, heading) {
           closeSheet(sheet);
         }
       });
+    });
+
+
+    emailInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") loginEmailAccount();
+    });
+
+    passwordInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") loginEmailAccount();
+    });
+
+    registerPasswordInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") createEmailAccount();
     });
 
     loginEmailBtn.addEventListener("click", loginEmailAccount);
