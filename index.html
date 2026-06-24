@@ -354,7 +354,511 @@
       border: 1px solid rgba(255, 255, 255, 0.11) !important;
     }
 
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px;
+    }
+
+    .brand-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.075);
+      color: white;
+      border-radius: 999px;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .icon-btn:hover {
+      background: rgba(112, 167, 255, 0.16);
+      border-color: rgba(112, 167, 255, 0.42);
+      transform: translateY(-1px);
+    }
+
+    .app-dock {
+      position: absolute;
+      left: 18px;
+      top: 150px;
+      z-index: 998;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .dock-btn {
+      width: 46px;
+      height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(10, 12, 18, 0.88);
+      color: white;
+      border-radius: 16px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.34);
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.2s ease;
+    }
+
+    .dock-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(112, 167, 255, 0.16);
+      border-color: rgba(112, 167, 255, 0.35);
+    }
+
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .sheet-backdrop.active {
+      display: flex;
+    }
+
+    .sheet {
+      width: min(460px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      border-radius: 28px;
+      background: rgba(10, 12, 18, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.62);
+      padding: 18px;
+    }
+
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .sheet-title {
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -0.4px;
+    }
+
+    .sheet-subtitle {
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.4;
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.075);
+      color: white;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .provider-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .provider-btn {
+      height: 48px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.07);
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .provider-btn:hover {
+      background: rgba(112, 167, 255, 0.15);
+      border-color: rgba(112, 167, 255, 0.35);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0;
+      color: rgba(255, 255, 255, 0.48);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .form-stack input,
+    .form-stack select {
+      width: 100%;
+      height: 48px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.075);
+      color: white;
+      outline: none;
+      padding: 0 14px;
+      font-size: 14px;
+    }
+
+    .form-stack select option {
+      color: black;
+    }
+
+    .primary-btn {
+      height: 48px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #4e8cff, #7c5cff);
+      color: white;
+      font-weight: 950;
+      cursor: pointer;
+      box-shadow: 0 14px 34px rgba(78, 140, 255, 0.25);
+    }
+
+    .mini-note {
+      margin-top: 10px;
+      color: rgba(255, 255, 255, 0.52);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .settings-group {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .setting-card {
+      padding: 13px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .setting-label {
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 7px;
+    }
+
+    .setting-desc {
+      color: rgba(255, 255, 255, 0.52);
+      font-size: 11px;
+      line-height: 1.4;
+      margin-top: 6px;
+    }
+
+    .quick-panel {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      width: min(330px, calc(100% - 36px));
+      display: none;
+      z-index: 999;
+      background: rgba(10, 12, 18, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .quick-panel.active {
+      display: block;
+    }
+
+    .quick-title {
+      font-size: 14px;
+      font-weight: 950;
+      color: #70a7ff;
+      margin-bottom: 10px;
+    }
+
+    .quick-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .quick-item {
+      padding: 10px 11px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.065);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.78);
+      cursor: pointer;
+    }
+
+    body.light-mode {
+      background: #eef3fb;
+      color: #09111f;
+    }
+
+    body.light-mode .top-panel,
+    body.light-mode .nav-panel,
+    body.light-mode .quick-panel,
+    body.light-mode .sheet,
+    body.light-mode .dock-btn {
+      background: rgba(255, 255, 255, 0.9);
+      color: #09111f;
+      border-color: rgba(12, 25, 45, 0.1);
+    }
+
+    body.light-mode .field input,
+    body.light-mode .form-stack input,
+    body.light-mode .form-stack select,
+    body.light-mode .icon-btn,
+    body.light-mode .collapse-btn,
+    body.light-mode .provider-btn,
+    body.light-mode .setting-card,
+    body.light-mode .quick-item,
+    body.light-mode .meta-pill,
+    body.light-mode .direction-step,
+    body.light-mode .mode-btn {
+      background: rgba(9, 17, 31, 0.055);
+      color: #09111f;
+      border-color: rgba(9, 17, 31, 0.1);
+    }
+
+    body.light-mode .suggestions {
+      background: rgba(255, 255, 255, 0.98);
+      color: #09111f;
+    }
+
+    body.light-mode .suggestion-title,
+    body.light-mode .logo,
+    body.light-mode .current-instruction {
+      color: #09111f;
+    }
+
+    body.light-mode .suggestion-sub,
+    body.light-mode .status,
+    body.light-mode .route-desc,
+    body.light-mode .setting-desc,
+    body.light-mode .mini-note,
+    body.light-mode .direction-meta {
+      color: rgba(9, 17, 31, 0.58);
+    }
+
+
+    .auth-lock-banner {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 1200;
+      width: min(560px, calc(100% - 36px));
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+      border-radius: 20px;
+      background: rgba(10, 12, 18, 0.94);
+      border: 1px solid rgba(112, 167, 255, 0.28);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .auth-lock-banner.active {
+      display: flex;
+    }
+
+    .auth-lock-title {
+      font-size: 13px;
+      font-weight: 950;
+      color: white;
+      margin-bottom: 3px;
+    }
+
+    .auth-lock-text {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.58);
+      line-height: 1.35;
+    }
+
+    .auth-lock-btn {
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4e8cff, #7c5cff);
+      color: white;
+      font-size: 12px;
+      font-weight: 950;
+      padding: 10px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .auth-locked .search-grid,
+    .auth-locked .mode-row,
+    .auth-locked .app-dock,
+    .auth-locked .nav-panel {
+      filter: grayscale(0.3);
+      opacity: 0.54;
+    }
+
+    .auth-locked input,
+    .auth-locked .go-btn,
+    .auth-locked .mode-btn,
+    .auth-locked .dock-btn,
+    .auth-locked #settingsBtn {
+      pointer-events: none;
+    }
+
+    .account-card {
+      display: none;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      margin-bottom: 14px;
+    }
+
+    .account-card.active {
+      display: flex;
+    }
+
+    .account-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4e8cff, #7c5cff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 950;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .account-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .account-name {
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .account-mail {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+      margin-top: 3px;
+      word-break: break-all;
+    }
+
     @media (max-width: 760px) {
+
+      .brand {
+        align-items: flex-start;
+      }
+
+      .brand-actions {
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .icon-btn {
+        height: 32px;
+        padding: 0 9px;
+        font-size: 11px;
+      }
+
+      .brand-logo {
+        width: 34px;
+        height: 34px;
+      }
+
+      .app-dock {
+        left: 12px;
+        top: auto;
+        bottom: calc(34vh + 26px);
+        flex-direction: row;
+      }
+
+      .dock-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+      }
+
+      .provider-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-panel {
+        left: 12px;
+        right: 12px;
+        bottom: calc(34vh + 24px);
+        width: auto;
+      }
+
+
+      .auth-lock-banner {
+        bottom: 12px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .auth-lock-btn {
+        width: 100%;
+      }
+
       .top-panel {
         top: 10px;
         border-radius: 22px;
@@ -423,10 +927,135 @@
 <body>
   <div id="map"></div>
 
+  <div class="auth-lock-banner" id="authLockBanner">
+    <div>
+      <div class="auth-lock-title">Accesso obbligatorio</div>
+      <div class="auth-lock-text">Per cercare percorsi, usare la posizione, salvare preferiti e impostazioni devi accedere o creare un account.</div>
+    </div>
+    <button class="auth-lock-btn" id="authLockBtn">Accedi gratis</button>
+  </div>
+
+  <div class="app-dock">
+    <button class="dock-btn" id="homeBtn" title="Home">🏠</button>
+    <button class="dock-btn" id="savedBtn" title="Salvati">⭐</button>
+    <button class="dock-btn" id="nearbyBtn" title="Vicino a te">📍</button>
+  </div>
+
+  <div class="quick-panel" id="quickPanel">
+    <div class="quick-title" id="quickTitle">Scorciatoie</div>
+    <div class="quick-list" id="quickList">
+      <div class="quick-item" data-place="Casa">🏠 Casa</div>
+      <div class="quick-item" data-place="Lavoro">💼 Lavoro</div>
+      <div class="quick-item" data-place="Parcheggio vicino a me">🅿️ Parcheggio vicino a me</div>
+      <div class="quick-item" data-place="Benzinaio vicino a me">⛽ Benzinaio vicino a me</div>
+    </div>
+  </div>
+
+  <div class="sheet-backdrop" id="loginSheet">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <div class="sheet-title" id="loginTitle">Accedi a ConMaps</div>
+          <div class="sheet-subtitle" id="loginSubtitle">Salva percorsi, preferenze e luoghi preferiti.</div>
+        </div>
+        <button class="close-btn" data-close="loginSheet">×</button>
+      </div>
+
+      <div class="account-card" id="accountCard">
+        <div class="account-avatar" id="accountAvatar">C</div>
+        <div>
+          <div class="account-name" id="accountName">Account</div>
+          <div class="account-mail" id="accountMail">Non collegato</div>
+        </div>
+      </div>
+
+      <div class="provider-grid">
+        <button class="provider-btn" data-provider="Google">Continua con Google</button>
+        <button class="provider-btn" data-provider="Apple">Continua con Apple</button>
+        <button class="provider-btn" data-provider="Microsoft">Microsoft</button>
+        <button class="provider-btn" data-provider="Discord">Discord</button>
+      </div>
+
+      <div class="divider">oppure</div>
+
+      <div class="form-stack">
+        <input id="emailInput" type="email" placeholder="Email" />
+        <input id="passwordInput" type="password" placeholder="Password" />
+        <button class="primary-btn" id="demoLoginBtn">Accedi / Iscriviti</button>
+        <button class="provider-btn" id="logoutBtn" type="button">Esci dall'account</button>
+      </div>
+
+      <div class="mini-note">
+        Accesso reale con Firebase Auth. Google funziona appena abiliti il provider. Apple, Microsoft e Discord richiedono configurazione OAuth/OIDC nella console Firebase.
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-backdrop" id="settingsSheet">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <div class="sheet-title">Impostazioni</div>
+          <div class="sheet-subtitle">Personalizza ConMaps.</div>
+        </div>
+        <button class="close-btn" data-close="settingsSheet">×</button>
+      </div>
+
+      <div class="settings-group">
+        <div class="setting-card">
+          <div class="setting-label">Lingua</div>
+          <div class="form-stack">
+            <select id="languageSelect">
+              <option value="it">Italiano</option>
+              <option value="en">English</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+            </select>
+          </div>
+          <div class="setting-desc">Cambia testi principali, pulsanti e segnaposto.</div>
+        </div>
+
+        <div class="setting-card">
+          <div class="setting-label">Tema</div>
+          <div class="form-stack">
+            <select id="themeSelect">
+              <option value="dark">Scuro</option>
+              <option value="light">Chiaro</option>
+            </select>
+          </div>
+          <div class="setting-desc">Modalità scura o chiara.</div>
+        </div>
+
+        <div class="setting-card">
+          <div class="setting-label">Unità distanza</div>
+          <div class="form-stack">
+            <select id="unitSelect">
+              <option value="km">Chilometri</option>
+              <option value="mi">Miglia</option>
+            </select>
+          </div>
+          <div class="setting-desc">Preferenza salvata nel browser.</div>
+        </div>
+      </div>
+
+      <button class="primary-btn" id="saveSettingsBtn">Salva impostazioni</button>
+    </div>
+  </div>
+
+
   <div class="top-panel">
     <div class="brand">
-      <div class="logo">Con<span>Maps</span></div>
-      <div class="status" id="statusText">Scegli partenza e arrivo</div>
+      <div class="brand-left">
+        <img class="brand-logo" src="ConMapslogo.png" alt="ConMaps logo" />
+        <div class="logo">Con<span>Maps</span></div>
+      </div>
+
+      <div class="brand-actions">
+        <button class="icon-btn" id="languageBtn">🌐 IT</button>
+        <button class="icon-btn" id="settingsBtn">⚙️</button>
+        <button class="icon-btn" id="loginBtn">Accedi</button>
+        <div class="status" id="statusText">Scegli partenza e arrivo</div>
+      </div>
     </div>
 
     <div class="search-grid">
@@ -471,7 +1100,42 @@
 
   <div class="error-box" id="errorBox"></div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signInWithPopup,
+      GoogleAuthProvider,
+      OAuthProvider,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const FIREBASE_READY =
+      firebaseConfig &&
+      firebaseConfig.apiKey &&
+      !firebaseConfig.apiKey.includes("INSERISCI") &&
+      firebaseConfig.projectId &&
+      !firebaseConfig.projectId.includes("INSERISCI");
+
+    const firebaseApp = FIREBASE_READY ? initializeApp(firebaseConfig) : null;
+    const auth = FIREBASE_READY ? getAuth(firebaseApp) : null;
+    const db = FIREBASE_READY ? getFirestore(firebaseApp) : null;
+
+    let currentUser = null;
+
     const GEOAPIFY_KEY = "c52bc1e58e1543acaf1233caae7f1bfa";
 
     const map = L.map("map", {
@@ -499,6 +1163,27 @@
     const timeMeta = document.getElementById("timeMeta");
     const gpsMeta = document.getElementById("gpsMeta");
     const collapseBtn = document.getElementById("collapseBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const settingsBtn = document.getElementById("settingsBtn");
+    const languageBtn = document.getElementById("languageBtn");
+    const loginSheet = document.getElementById("loginSheet");
+    const settingsSheet = document.getElementById("settingsSheet");
+    const languageSelect = document.getElementById("languageSelect");
+    const themeSelect = document.getElementById("themeSelect");
+    const unitSelect = document.getElementById("unitSelect");
+    const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+    const demoLoginBtn = document.getElementById("demoLoginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const quickPanel = document.getElementById("quickPanel");
+    const savedBtn = document.getElementById("savedBtn");
+    const nearbyBtn = document.getElementById("nearbyBtn");
+    const homeBtn = document.getElementById("homeBtn");
+    const authLockBanner = document.getElementById("authLockBanner");
+    const authLockBtn = document.getElementById("authLockBtn");
+    const accountCard = document.getElementById("accountCard");
+    const accountAvatar = document.getElementById("accountAvatar");
+    const accountName = document.getElementById("accountName");
+    const accountMail = document.getElementById("accountMail");
 
     let selectedMode = "drive";
 
@@ -517,6 +1202,12 @@
     let currentStepIndex = 0;
     let routePoints = [];
 
+    let appLanguage = localStorage.getItem("conmaps_language") || "it";
+    let distanceUnit = localStorage.getItem("conmaps_unit") || "km";
+    let appTheme = localStorage.getItem("conmaps_theme") || "dark";
+    let demoUser = localStorage.getItem("conmaps_user") || "";
+    let lastRouteSavedAt = 0;
+
     function showError(message) {
       errorBox.innerText = message;
       errorBox.style.display = "block";
@@ -528,6 +1219,53 @@
 
     function setStatus(text) {
       statusText.innerText = text;
+    }
+
+
+    function isLoggedIn() {
+      return !!currentUser;
+    }
+
+    function requireAuth(actionName) {
+      if (!FIREBASE_READY || !auth || !db) {
+        showError("Firebase non è configurato. Apri firebase-config.js e inserisci i dati del tuo progetto Firebase.");
+        openSheet(loginSheet);
+        return false;
+      }
+
+      if (!currentUser) {
+        const action = actionName || "usare questa funzione";
+        showError("Devi accedere o creare un account per " + action + ".");
+        openSheet(loginSheet);
+        return false;
+      }
+
+      return true;
+    }
+
+    function setAppLocked(locked) {
+      document.body.classList.toggle("auth-locked", locked);
+
+      startInput.disabled = locked;
+      endInput.disabled = locked;
+      goBtn.disabled = locked;
+      document.querySelectorAll(".mode-btn").forEach(function (button) {
+        button.disabled = locked;
+      });
+      document.querySelectorAll(".dock-btn").forEach(function (button) {
+        button.disabled = locked;
+      });
+      settingsBtn.disabled = locked;
+
+      if (locked) {
+        authLockBanner.classList.add("active");
+        navPanel.classList.add("collapsed");
+        currentInstruction.innerText = "Accedi per iniziare la navigazione.";
+        setStatus("Accesso richiesto");
+      } else {
+        authLockBanner.classList.remove("active");
+        setStatus("Account collegato");
+      }
     }
 
     function debounce(func, delay) {
@@ -561,6 +1299,16 @@
 
     function formatDistance(meters) {
       if (!isFinite(meters)) return "--";
+
+      if (distanceUnit === "mi") {
+        const miles = meters / 1609.344;
+
+        if (miles < 0.1) {
+          return Math.round(meters * 3.28084) + " ft";
+        }
+
+        return miles.toFixed(1).replace(".", ",") + " mi";
+      }
 
       if (meters < 1000) {
         return Math.round(meters) + " m";
@@ -611,50 +1359,59 @@
       });
     }
 
-    function getRotation(lat, lon, heading) {
-      if (typeof heading === "number" && !isNaN(heading)) {
-        return heading;
-      }
+function updateUserMarker(lat, lon, heading) {
+  let rotation = 0;
 
-      if (lastPosition) {
-        return bearingDegrees(lastPosition.lat, lastPosition.lon, lat, lon);
-      }
+  if (typeof heading === "number" && !isNaN(heading)) {
+    rotation = heading;
+  } else if (lastPosition) {
+    rotation = bearingDegrees(lastPosition.lat, lastPosition.lon, lat, lon);
+  }
 
-      return 0;
-    }
+  if (!userMarker) {
+    userMarker = L.marker([lat, lon], {
+      icon: createUserIcon(rotation),
+      zIndexOffset: 9999
+    }).addTo(map);
+  } else {
+    userMarker.setLatLng([lat, lon]);
+    userMarker.setIcon(createUserIcon(rotation));
+  }
 
-    function updateUserMarker(lat, lon, heading) {
-      const rotation = getRotation(lat, lon, heading);
+  lastPosition = { lat, lon };
+}
+function followUserFromBehind(lat, lon, heading) {
+  let rotation = 0;
 
-      if (!userMarker) {
-        userMarker = L.marker([lat, lon], {
-          icon: createUserIcon(rotation),
-          zIndexOffset: 9999
-        }).addTo(map);
-      } else {
-        userMarker.setLatLng([lat, lon]);
-        userMarker.setIcon(createUserIcon(rotation));
-      }
+  if (typeof heading === "number" && !isNaN(heading)) {
+    rotation = heading;
+  } else if (lastPosition) {
+    rotation = bearingDegrees(lastPosition.lat, lastPosition.lon, lat, lon);
+  }
 
-      lastPosition = { lat, lon };
+  /*
+    Questa funzione sposta il centro della mappa un po’ davanti alla tua posizione.
+    Così la freccia resta più in basso, come se la vedessi da dietro.
+  */
 
-      return rotation;
-    }
+  const distanceAhead = 0.0009;
 
-    function followUserFromBehind(lat, lon, rotation) {
-      const distanceAhead = 0.0009;
-      const radians = rotation * Math.PI / 180;
+  const radians = rotation * Math.PI / 180;
 
-      const aheadLat = lat + Math.cos(radians) * distanceAhead;
-      const aheadLon = lon + Math.sin(radians) * distanceAhead;
+  const aheadLat = lat + Math.cos(radians) * distanceAhead;
+  const aheadLon = lon + Math.sin(radians) * distanceAhead;
 
-      map.setView([aheadLat, aheadLon], 18, {
-        animate: true,
-        duration: 0.8
-      });
-    }
+  map.setView([aheadLat, aheadLon], 18, {
+    animate: true,
+    duration: 0.8
+  });
+}
 
     function getCurrentLocation() {
+      if (!requireAuth("usare la posizione attuale")) {
+        return Promise.reject(new Error("Accesso richiesto."));
+      }
+
       return new Promise(function (resolve, reject) {
         if (!window.isSecureContext) {
           reject(new Error("La posizione funziona solo su HTTPS o localhost."));
@@ -734,11 +1491,15 @@
           startPlace.lat = lat;
           startPlace.lon = lon;
 
-          const rotation = updateUserMarker(lat, lon, heading);
+          updateUserMarker(lat, lon, heading);
           gpsMeta.innerText = "GPS attivo";
 
           if (routeLine) {
-            followUserFromBehind(lat, lon, rotation);
+            map.setView([lat, lon], 18, {
+              animate: true,
+              duration: 0.8
+            });
+
             updateCurrentInstructionByPosition(lat, lon);
           }
         },
@@ -928,15 +1689,19 @@
     }
 
     function selectPlace(place, input, box, type) {
+      if (!requireAuth("selezionare luoghi e salvare le ricerche")) return;
+
       if (type === "start") {
         startPlace = place;
         input.value = place.name;
         setMarker("start", place);
+        savePlaceToDatabase("start", place);
         endInput.focus();
       } else {
         endPlace = place;
         input.value = place.name;
         setMarker("end", place);
+        savePlaceToDatabase("end", place);
       }
 
       box.style.display = "none";
@@ -1028,16 +1793,19 @@
     }, 350);
 
     startInput.addEventListener("input", function () {
+      if (!requireAuth("cercare una partenza")) return;
       startPlace = null;
       handleStartSearch();
     });
 
     endInput.addEventListener("input", function () {
+      if (!requireAuth("cercare un arrivo")) return;
       endPlace = null;
       handleEndSearch();
     });
 
     startInput.addEventListener("focus", function () {
+      if (!requireAuth("cercare un percorso")) return;
       if (startInput.value.trim().length >= 2) {
         handleStartSearch();
       } else {
@@ -1046,6 +1814,7 @@
     });
 
     endInput.addEventListener("focus", function () {
+      if (!requireAuth("cercare un percorso")) return;
       if (endInput.value.trim().length >= 2) {
         handleEndSearch();
       }
@@ -1304,6 +2073,8 @@
     }
 
     async function calculateRoute() {
+      if (!requireAuth("vedere un percorso")) return;
+
       try {
         goBtn.classList.add("loading");
         goBtn.innerText = "Calcolo...";
@@ -1334,17 +2105,35 @@
         navPanel.classList.remove("collapsed");
         collapseBtn.innerText = "Riduci";
 
+        map.setView([startPlace.lat, startPlace.lon], 18, {
+          animate: true,
+          duration: 1
+        });
+
+        await saveRouteToDatabase({
+          mode: selectedMode,
+          distance: distance,
+          time: time,
+          from: {
+            name: startPlace.name || startPlace.title || "Partenza",
+            lat: startPlace.lat,
+            lon: startPlace.lon,
+            source: startPlace.source || "manual"
+          },
+          to: {
+            name: endPlace.name || endPlace.title || "Arrivo",
+            lat: endPlace.lat,
+            lon: endPlace.lon,
+            source: endPlace.source || "manual"
+          },
+          stepsCount: currentSteps.length
+        });
+
         if (startPlace.source === "gps") {
-          const rotation = updateUserMarker(startPlace.lat, startPlace.lon, 0);
-          followUserFromBehind(startPlace.lat, startPlace.lon, rotation);
+          updateUserMarker(startPlace.lat, startPlace.lon, 0);
           startWatchingLocation();
           setStatus("Navigazione attiva");
         } else {
-          map.setView([startPlace.lat, startPlace.lon], 18, {
-            animate: true,
-            duration: 1
-          });
-
           setStatus("Percorso pronto");
         }
       } catch (err) {
@@ -1356,8 +2145,425 @@
       }
     }
 
+
+
+    function requireFirebase() {
+      if (!FIREBASE_READY || !auth || !db) {
+        showError("Firebase non è configurato. Apri firebase-config.js e inserisci i dati del tuo progetto Firebase.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function getSafeUserData(user) {
+      return {
+        uid: user.uid,
+        email: user.email || "",
+        displayName: user.displayName || "",
+        photoURL: user.photoURL || "",
+        phoneNumber: user.phoneNumber || "",
+        emailVerified: !!user.emailVerified,
+        providerIds: user.providerData.map(function (p) {
+          return p.providerId;
+        }),
+        lastLoginAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+    }
+
+    async function saveUserAccount(user, loginMethod) {
+      if (!db || !user) return;
+
+      const userRef = doc(db, "users", user.uid);
+      const existing = await getDoc(userRef);
+
+      const userData = getSafeUserData(user);
+
+      await setDoc(userRef, {
+        ...userData,
+        loginMethod: loginMethod || "unknown",
+        createdAt: existing.exists() ? existing.data().createdAt : serverTimestamp(),
+        settings: {
+          language: appLanguage,
+          theme: appTheme,
+          distanceUnit: distanceUnit
+        }
+      }, { merge: true });
+
+      await addDoc(collection(db, "users", user.uid, "loginEvents"), {
+        method: loginMethod || "unknown",
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        createdAt: serverTimestamp()
+      });
+    }
+
+    async function saveUserSettingsToDatabase() {
+      if (!db || !currentUser) return;
+
+      await setDoc(doc(db, "users", currentUser.uid), {
+        settings: {
+          language: appLanguage,
+          theme: appTheme,
+          distanceUnit: distanceUnit
+        },
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    async function saveRouteToDatabase(routeData) {
+      if (!db || !currentUser) return;
+
+      const now = Date.now();
+
+      if (now - lastRouteSavedAt < 3000) return;
+      lastRouteSavedAt = now;
+
+      await setDoc(doc(db, "users", currentUser.uid), {
+        lastRoute: routeData,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      await addDoc(collection(db, "users", currentUser.uid, "routes"), {
+        ...routeData,
+        createdAt: serverTimestamp()
+      });
+    }
+
+    async function savePlaceToDatabase(type, place) {
+      if (!db || !currentUser || !place) return;
+
+      await setDoc(doc(db, "users", currentUser.uid, "places", type), {
+        type: type,
+        name: place.name || "",
+        title: place.title || "",
+        subtitle: place.subtitle || "",
+        lat: place.lat,
+        lon: place.lon,
+        source: place.source || "manual",
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    function updateAuthUI(user) {
+      currentUser = user || null;
+
+      if (user) {
+        const name = user.displayName || user.email || "Account";
+        const shortName = name.split("@")[0];
+
+        loginBtn.innerText = "👤 " + shortName;
+        demoUser = shortName;
+        localStorage.setItem("conmaps_user", demoUser);
+
+        accountCard.classList.add("active");
+        accountName.innerText = name;
+        accountMail.innerText = user.email || "Provider collegato";
+
+        if (user.photoURL) {
+          accountAvatar.innerHTML = `<img src="${user.photoURL}" alt="Avatar" />`;
+        } else {
+          accountAvatar.innerText = shortName.charAt(0).toUpperCase();
+        }
+
+        setAppLocked(false);
+        setStatus("Account collegato");
+      } else {
+        demoUser = "";
+        localStorage.removeItem("conmaps_user");
+        accountCard.classList.remove("active");
+        accountAvatar.innerText = "C";
+        accountName.innerText = "Account";
+        accountMail.innerText = "Non collegato";
+        applyLanguage();
+        setAppLocked(true);
+      }
+    }
+
+    async function signInWithSocial(providerName) {
+      if (!requireFirebase()) return;
+
+      let provider;
+      let label = providerName;
+
+      if (providerName === "Google") {
+        provider = new GoogleAuthProvider();
+      } else if (providerName === "Apple") {
+        provider = new OAuthProvider("apple.com");
+      } else if (providerName === "Microsoft") {
+        provider = new OAuthProvider("microsoft.com");
+      } else if (providerName === "Discord") {
+        provider = new OAuthProvider("oidc.discord");
+        label = "Discord/OIDC";
+      } else {
+        showError("Provider non supportato.");
+        return;
+      }
+
+      try {
+        setStatus("Accesso con " + label + "...");
+        const result = await signInWithPopup(auth, provider);
+        await saveUserAccount(result.user, providerName);
+        closeSheet(loginSheet);
+        setStatus("Accesso effettuato con " + label);
+      } catch (err) {
+        showError("Errore login " + label + ": " + (err.message || err.code));
+        setStatus("Errore login");
+      }
+    }
+
+    async function signInOrCreateEmailAccount() {
+      if (!requireFirebase()) return;
+
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value;
+
+      if (!email.includes("@")) {
+        showError("Inserisci una email valida.");
+        return;
+      }
+
+      if (password.length < 6) {
+        showError("La password deve avere almeno 6 caratteri.");
+        return;
+      }
+
+      try {
+        setStatus("Creazione account...");
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        await saveUserAccount(result.user, "email_signup");
+        closeSheet(loginSheet);
+        setStatus("Account creato");
+      } catch (err) {
+        if (err.code === "auth/email-already-in-use") {
+          try {
+            setStatus("Accesso account...");
+            const result = await signInWithEmailAndPassword(auth, email, password);
+            await saveUserAccount(result.user, "email_login");
+            closeSheet(loginSheet);
+            setStatus("Accesso effettuato");
+          } catch (loginErr) {
+            showError("Password errata o account non disponibile: " + (loginErr.message || loginErr.code));
+            setStatus("Errore login");
+          }
+        } else {
+          showError("Errore account: " + (err.message || err.code));
+          setStatus("Errore account");
+        }
+      }
+    }
+
+    async function logoutAccount() {
+      if (!requireFirebase()) return;
+
+      try {
+        await signOut(auth);
+        closeSheet(loginSheet);
+        setStatus("Account disconnesso");
+      } catch (err) {
+        showError("Errore uscita account: " + (err.message || err.code));
+      }
+    }
+
+    const translations = {
+      it: {
+        start: "Partenza",
+        end: "Arrivo",
+        go: "Vai",
+        status: "Scegli partenza e arrivo",
+        nav: "Navigazione",
+        current: "Scegli partenza e arrivo.",
+        login: "Accedi",
+        quick: "Scorciatoie"
+      },
+      en: {
+        start: "Start",
+        end: "Destination",
+        go: "Go",
+        status: "Choose start and destination",
+        nav: "Navigation",
+        current: "Choose start and destination.",
+        login: "Sign in",
+        quick: "Shortcuts"
+      },
+      es: {
+        start: "Salida",
+        end: "Destino",
+        go: "Ir",
+        status: "Elige salida y destino",
+        nav: "Navegación",
+        current: "Elige salida y destino.",
+        login: "Entrar",
+        quick: "Atajos"
+      },
+      fr: {
+        start: "Départ",
+        end: "Arrivée",
+        go: "Aller",
+        status: "Choisis départ et arrivée",
+        nav: "Navigation",
+        current: "Choisis départ et arrivée.",
+        login: "Connexion",
+        quick: "Raccourcis"
+      }
+    };
+
+    function openSheet(sheet) {
+      sheet.classList.add("active");
+    }
+
+    function closeSheet(sheet) {
+      sheet.classList.remove("active");
+    }
+
+    function applyTheme() {
+      if (appTheme === "light") {
+        document.body.classList.add("light-mode");
+      } else {
+        document.body.classList.remove("light-mode");
+      }
+
+      themeSelect.value = appTheme;
+    }
+
+    function applyLanguage() {
+      const t = translations[appLanguage] || translations.it;
+
+      document.documentElement.lang = appLanguage;
+      startInput.placeholder = t.start;
+      endInput.placeholder = t.end;
+      goBtn.innerText = t.go;
+      statusText.innerText = t.status;
+      document.querySelector(".nav-title").innerText = t.nav;
+      currentInstruction.innerText = t.current;
+      loginBtn.innerText = demoUser ? "👤 " + demoUser : t.login;
+      languageBtn.innerText = "🌐 " + appLanguage.toUpperCase();
+      document.getElementById("quickTitle").innerText = t.quick;
+      languageSelect.value = appLanguage;
+    }
+
+    async function applySettings() {
+      if (!requireAuth("salvare le impostazioni")) return;
+
+      appLanguage = languageSelect.value;
+      appTheme = themeSelect.value;
+      distanceUnit = unitSelect.value;
+
+      localStorage.setItem("conmaps_language", appLanguage);
+      localStorage.setItem("conmaps_theme", appTheme);
+      localStorage.setItem("conmaps_unit", distanceUnit);
+
+      applyTheme();
+      applyLanguage();
+
+      if (routeLine && currentSteps.length) {
+        renderDirections();
+        updateInstructionUI();
+      }
+
+      await saveUserSettingsToDatabase();
+
+      closeSheet(settingsSheet);
+      setStatus("Impostazioni salvate");
+    }
+
+    function initAppShell() {
+      languageSelect.value = appLanguage;
+      themeSelect.value = appTheme;
+      unitSelect.value = distanceUnit;
+
+      applyTheme();
+      applyLanguage();
+
+      if (demoUser) {
+        loginBtn.innerText = "👤 " + demoUser;
+      }
+    }
+
+    authLockBtn.addEventListener("click", function () {
+      openSheet(loginSheet);
+    });
+
+    loginBtn.addEventListener("click", function () {
+      openSheet(loginSheet);
+    });
+
+    settingsBtn.addEventListener("click", function () {
+      if (!requireAuth("aprire le impostazioni")) return;
+      openSheet(settingsSheet);
+    });
+
+    languageBtn.addEventListener("click", function () {
+      const languages = ["it", "en", "es", "fr"];
+      const currentIndex = languages.indexOf(appLanguage);
+      appLanguage = languages[(currentIndex + 1) % languages.length];
+      languageSelect.value = appLanguage;
+      localStorage.setItem("conmaps_language", appLanguage);
+      applyLanguage();
+    });
+
+    document.querySelectorAll("[data-close]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const target = document.getElementById(button.dataset.close);
+        closeSheet(target);
+      });
+    });
+
+    document.querySelectorAll(".sheet-backdrop").forEach(function (sheet) {
+      sheet.addEventListener("mousedown", function (event) {
+        if (event.target === sheet) {
+          closeSheet(sheet);
+        }
+      });
+    });
+
+    document.querySelectorAll(".provider-btn[data-provider]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        signInWithSocial(button.dataset.provider);
+      });
+    });
+
+    demoLoginBtn.addEventListener("click", signInOrCreateEmailAccount);
+
+    logoutBtn.addEventListener("click", logoutAccount);
+
+    saveSettingsBtn.addEventListener("click", applySettings);
+
+    savedBtn.addEventListener("click", function () {
+      if (!requireAuth("usare i preferiti")) return;
+      quickPanel.classList.toggle("active");
+      document.getElementById("quickTitle").innerText = "Preferiti";
+    });
+
+    nearbyBtn.addEventListener("click", function () {
+      if (!requireAuth("cercare luoghi vicini")) return;
+      quickPanel.classList.toggle("active");
+      document.getElementById("quickTitle").innerText = "Vicino a te";
+    });
+
+    homeBtn.addEventListener("click", function () {
+      if (!requireAuth("usare le scorciatoie")) return;
+      map.setView([41.9028, 12.4964], 6, {
+        animate: true
+      });
+    });
+
+    document.querySelectorAll(".quick-item").forEach(function (item) {
+      item.addEventListener("click", function () {
+        if (!requireAuth("usare questa scorciatoia")) return;
+        endInput.value = item.dataset.place;
+        endPlace = null;
+        quickPanel.classList.remove("active");
+        endInput.focus();
+        handleEndSearch();
+      });
+    });
+
+
     document.querySelectorAll(".mode-btn").forEach(function (button) {
       button.addEventListener("click", function () {
+        if (!requireAuth("cambiare modalità percorso")) return;
         document.querySelectorAll(".mode-btn").forEach(function (btn) {
           btn.classList.remove("active");
         });
@@ -1400,9 +2606,26 @@
     });
 
     window.addEventListener("load", function () {
+      initAppShell();
+      setAppLocked(true);
+
+      if (FIREBASE_READY) {
+        onAuthStateChanged(auth, async function (user) {
+          updateAuthUI(user);
+
+          if (user) {
+            await saveUserAccount(user, "session_restore");
+          }
+        });
+      } else {
+        showError("Firebase non configurato: login e database saranno attivi dopo aver compilato firebase-config.js");
+      }
+
       navPanel.style.display = "block";
       navPanel.classList.add("collapsed");
-      currentInstruction.innerText = "Scegli partenza e arrivo.";
+      if (currentUser) {
+        currentInstruction.innerText = translations[appLanguage].current;
+      }
     });
   </script>
 </body>
