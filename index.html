@@ -611,18 +611,25 @@
       });
     }
 
-    function updateUserMarker(lat, lon, heading) {
-      let rotation = 0;
-
+    function getRotation(lat, lon, heading) {
       if (typeof heading === "number" && !isNaN(heading)) {
-        rotation = heading;
-      } else if (lastPosition) {
-        rotation = bearingDegrees(lastPosition.lat, lastPosition.lon, lat, lon);
+        return heading;
       }
+
+      if (lastPosition) {
+        return bearingDegrees(lastPosition.lat, lastPosition.lon, lat, lon);
+      }
+
+      return 0;
+    }
+
+    function updateUserMarker(lat, lon, heading) {
+      const rotation = getRotation(lat, lon, heading);
 
       if (!userMarker) {
         userMarker = L.marker([lat, lon], {
-          icon: createUserIcon(rotation)
+          icon: createUserIcon(rotation),
+          zIndexOffset: 9999
         }).addTo(map);
       } else {
         userMarker.setLatLng([lat, lon]);
@@ -630,6 +637,21 @@
       }
 
       lastPosition = { lat, lon };
+
+      return rotation;
+    }
+
+    function followUserFromBehind(lat, lon, rotation) {
+      const distanceAhead = 0.0009;
+      const radians = rotation * Math.PI / 180;
+
+      const aheadLat = lat + Math.cos(radians) * distanceAhead;
+      const aheadLon = lon + Math.sin(radians) * distanceAhead;
+
+      map.setView([aheadLat, aheadLon], 18, {
+        animate: true,
+        duration: 0.8
+      });
     }
 
     function getCurrentLocation() {
@@ -712,15 +734,11 @@
           startPlace.lat = lat;
           startPlace.lon = lon;
 
-          updateUserMarker(lat, lon, heading);
+          const rotation = updateUserMarker(lat, lon, heading);
           gpsMeta.innerText = "GPS attivo";
 
           if (routeLine) {
-            map.setView([lat, lon], 18, {
-              animate: true,
-              duration: 0.8
-            });
-
+            followUserFromBehind(lat, lon, rotation);
             updateCurrentInstructionByPosition(lat, lon);
           }
         },
@@ -1316,16 +1334,17 @@
         navPanel.classList.remove("collapsed");
         collapseBtn.innerText = "Riduci";
 
-        map.setView([startPlace.lat, startPlace.lon], 18, {
-          animate: true,
-          duration: 1
-        });
-
         if (startPlace.source === "gps") {
-          updateUserMarker(startPlace.lat, startPlace.lon, 0);
+          const rotation = updateUserMarker(startPlace.lat, startPlace.lon, 0);
+          followUserFromBehind(startPlace.lat, startPlace.lon, rotation);
           startWatchingLocation();
           setStatus("Navigazione attiva");
         } else {
+          map.setView([startPlace.lat, startPlace.lon], 18, {
+            animate: true,
+            duration: 1
+          });
+
           setStatus("Percorso pronto");
         }
       } catch (err) {
