@@ -1101,40 +1101,107 @@
   <div class="error-box" id="errorBox"></div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signInWithPopup,
-      GoogleAuthProvider,
-      OAuthProvider,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc,
-      collection,
-      addDoc,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-    import { firebaseConfig } from "./firebase-config.js";
+    /*
+      CHECK FATTO:
+      Prima il vecchio blocco si rompeva se mancava firebase-config.js.
+      Qui invece la mappa parte SEMPRE. Firebase viene caricato dopo, in modo sicuro.
+      Per rendere reali Google/Apple/Microsoft/Discord devi compilare firebaseConfig qui sotto
+      oppure creare un file firebase-config.js con: export const firebaseConfig = {...}
+    */
 
-    const FIREBASE_READY =
-      firebaseConfig &&
-      firebaseConfig.apiKey &&
-      !firebaseConfig.apiKey.includes("INSERISCI") &&
-      firebaseConfig.projectId &&
-      !firebaseConfig.projectId.includes("INSERISCI");
+    let initializeApp = null;
+    let getAuth = null;
+    let onAuthStateChanged = null;
+    let createUserWithEmailAndPassword = null;
+    let signInWithEmailAndPassword = null;
+    let signInWithPopup = null;
+    let GoogleAuthProvider = null;
+    let OAuthProvider = null;
+    let signOut = null;
 
-    const firebaseApp = FIREBASE_READY ? initializeApp(firebaseConfig) : null;
-    const auth = FIREBASE_READY ? getAuth(firebaseApp) : null;
-    const db = FIREBASE_READY ? getFirestore(firebaseApp) : null;
+    let getFirestore = null;
+    let doc = null;
+    let setDoc = null;
+    let getDoc = null;
+    let collection = null;
+    let addDoc = null;
+    let serverTimestamp = null;
 
+    let firebaseConfig = {
+      apiKey: "INSERISCI_API_KEY",
+      authDomain: "INSERISCI_PROJECT_ID.firebaseapp.com",
+      projectId: "INSERISCI_PROJECT_ID",
+      storageBucket: "INSERISCI_PROJECT_ID.appspot.com",
+      messagingSenderId: "INSERISCI_MESSAGING_SENDER_ID",
+      appId: "INSERISCI_APP_ID"
+    };
+
+    let FIREBASE_READY = false;
+    let firebaseApp = null;
+    let auth = null;
+    let db = null;
     let currentUser = null;
+
+    async function loadFirebaseSafely() {
+      try {
+        try {
+          const externalConfig = await import("./firebase-config.js");
+
+          if (externalConfig && externalConfig.firebaseConfig) {
+            firebaseConfig = externalConfig.firebaseConfig;
+          }
+        } catch (configError) {
+          console.warn("firebase-config.js non trovato o non valido. Uso la configurazione interna.");
+        }
+
+        const firebaseAppModule = await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js");
+        const firebaseAuthModule = await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js");
+        const firebaseFirestoreModule = await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js");
+
+        initializeApp = firebaseAppModule.initializeApp;
+
+        getAuth = firebaseAuthModule.getAuth;
+        onAuthStateChanged = firebaseAuthModule.onAuthStateChanged;
+        createUserWithEmailAndPassword = firebaseAuthModule.createUserWithEmailAndPassword;
+        signInWithEmailAndPassword = firebaseAuthModule.signInWithEmailAndPassword;
+        signInWithPopup = firebaseAuthModule.signInWithPopup;
+        GoogleAuthProvider = firebaseAuthModule.GoogleAuthProvider;
+        OAuthProvider = firebaseAuthModule.OAuthProvider;
+        signOut = firebaseAuthModule.signOut;
+
+        getFirestore = firebaseFirestoreModule.getFirestore;
+        doc = firebaseFirestoreModule.doc;
+        setDoc = firebaseFirestoreModule.setDoc;
+        getDoc = firebaseFirestoreModule.getDoc;
+        collection = firebaseFirestoreModule.collection;
+        addDoc = firebaseFirestoreModule.addDoc;
+        serverTimestamp = firebaseFirestoreModule.serverTimestamp;
+
+        FIREBASE_READY =
+          firebaseConfig &&
+          firebaseConfig.apiKey &&
+          !firebaseConfig.apiKey.includes("INSERISCI") &&
+          firebaseConfig.projectId &&
+          !firebaseConfig.projectId.includes("INSERISCI");
+
+        if (!FIREBASE_READY) {
+          return false;
+        }
+
+        firebaseApp = initializeApp(firebaseConfig);
+        auth = getAuth(firebaseApp);
+        db = getFirestore(firebaseApp);
+
+        return true;
+      } catch (firebaseError) {
+        console.error("Firebase non caricato:", firebaseError);
+        FIREBASE_READY = false;
+        firebaseApp = null;
+        auth = null;
+        db = null;
+        return false;
+      }
+    }
 
     const GEOAPIFY_KEY = "c52bc1e58e1543acaf1233caae7f1bfa";
 
@@ -1495,11 +1562,7 @@ function followUserFromBehind(lat, lon, heading) {
           gpsMeta.innerText = "GPS attivo";
 
           if (routeLine) {
-            map.setView([lat, lon], 18, {
-              animate: true,
-              duration: 0.8
-            });
-
+            followUserFromBehind(lat, lon, heading);
             updateCurrentInstructionByPosition(lat, lon);
           }
         },
@@ -2105,10 +2168,14 @@ function followUserFromBehind(lat, lon, heading) {
         navPanel.classList.remove("collapsed");
         collapseBtn.innerText = "Riduci";
 
-        map.setView([startPlace.lat, startPlace.lon], 18, {
-          animate: true,
-          duration: 1
-        });
+        if (startPlace.source === "gps") {
+          followUserFromBehind(startPlace.lat, startPlace.lon, 0);
+        } else {
+          map.setView([startPlace.lat, startPlace.lon], 18, {
+            animate: true,
+            duration: 1
+          });
+        }
 
         await saveRouteToDatabase({
           mode: selectedMode,
@@ -2605,11 +2672,22 @@ function followUserFromBehind(lat, lon, heading) {
       }
     });
 
-    window.addEventListener("load", function () {
+    window.addEventListener("load", async function () {
       initAppShell();
+
+      navPanel.style.display = "block";
+      navPanel.classList.add("collapsed");
+      currentInstruction.innerText = translations[appLanguage].current;
+
+      /*
+        La mappa è già stata creata sopra: anche se Firebase non è configurato,
+        lo sfondo con la terra/mappa rimane visibile.
+      */
       setAppLocked(true);
 
-      if (FIREBASE_READY) {
+      const firebaseLoaded = await loadFirebaseSafely();
+
+      if (firebaseLoaded && auth) {
         onAuthStateChanged(auth, async function (user) {
           updateAuthUI(user);
 
@@ -2618,13 +2696,7 @@ function followUserFromBehind(lat, lon, heading) {
           }
         });
       } else {
-        showError("Firebase non configurato: login e database saranno attivi dopo aver compilato firebase-config.js");
-      }
-
-      navPanel.style.display = "block";
-      navPanel.classList.add("collapsed");
-      if (currentUser) {
-        currentInstruction.innerText = translations[appLanguage].current;
+        showError("La mappa funziona. Per attivare login e database compila firebaseConfig oppure crea firebase-config.js.");
       }
     });
   </script>
